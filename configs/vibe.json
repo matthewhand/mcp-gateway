@@ -1,0 +1,60 @@
+{
+  "command": "/home/chatgpt/.local/bin/vibe",
+  "title": "Vibe CLI",
+  "version": "2.14.1",
+  "parse_help": false,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "maps_to_flag": "workdir",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory (passed as --workdir)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "prompt", "max-turns", "max-price", "max-tokens", "output", "agent", "workdir", "trust"
+  ],
+  "overrides": {
+    "output": {
+      "enum": ["text", "json", "streaming"],
+      "description": "Output format for programmatic mode (-p)"
+    },
+    "max-turns": {
+      "type": "integer",
+      "description": "Maximum assistant turns in programmatic mode"
+    },
+    "agent": {
+      "description": "Agent profile (e.g. auto-approve for non-interactive automation)"
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn prompt (passed as vibe -p / --prompt programmatic mode)",
+      "required": true,
+      "maps_to_flag": "prompt"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run a single-turn Vibe prompt",
+      "description": "Mandatory -p/--prompt drives programmatic non-interactive mode. --trust is applied for headless automation.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["max-turns", "max-price", "max-tokens", "output", "agent"],
+      "fixed_flags": {
+        "trust": true
+      }
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Vibe CLI version",
+      "argv": ["-v"]
+    }
+  ]
+}

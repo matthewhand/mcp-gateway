@@ -1,0 +1,1456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MCP Gateway — Add CLI or Endpoint</title>
+  <style>
+    :root {
+      --bg: #0f1419;
+      --panel: #1a2332;
+      --border: #2d3a4f;
+      --text: #e7ecf3;
+      --muted: #8b9cb3;
+      --accent: #3d8bfd;
+      --accent2: #5eead4;
+      --danger: #f87171;
+      --mono: ui-monospace, "Cascadia Code", "SF Mono", Menlo, monospace;
+      --sans: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.45;
+    }
+    header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+      background: linear-gradient(135deg, #152238 0%, #0f1419 100%);
+    }
+    header h1 { margin: 0 0 0.25rem; font-size: 1.35rem; }
+    header p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+    main { max-width: 1200px; margin: 0 auto; padding: 1.25rem 1.5rem 2rem; }
+    .tabs { display: flex; gap: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }
+    .tab {
+      border: 1px solid var(--border);
+      background: var(--panel);
+      color: var(--text);
+      padding: 0.55rem 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.95rem;
+    }
+    .tab.active { border-color: var(--accent); background: #1e3a5f; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .grid { display: grid; gap: 1rem; }
+    @media (min-width: 900px) {
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+    }
+    fieldset {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem 1.1rem;
+      margin: 0 0 1rem;
+      background: var(--panel);
+    }
+    legend { padding: 0 0.35rem; color: var(--accent2); font-weight: 600; }
+    label { display: block; font-size: 0.82rem; color: var(--muted); margin-bottom: 0.25rem; }
+    input[type="text"], input[type="number"], textarea, select {
+      width: 100%;
+      padding: 0.5rem 0.6rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: #0c1118;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.92rem;
+    }
+    textarea { min-height: 5rem; font-family: var(--mono); font-size: 0.82rem; }
+    .row { margin-bottom: 0.75rem; }
+    .row.inline { display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap; }
+    .row.inline label { margin: 0; display: flex; align-items: center; gap: 0.35rem; color: var(--text); }
+    .btn {
+      border: 1px solid var(--border);
+      background: #243049;
+      color: var(--text);
+      padding: 0.45rem 0.85rem;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.88rem;
+    }
+    .btn:hover { border-color: var(--accent); }
+    .btn.primary { background: #1d4ed8; border-color: #2563eb; }
+    .btn.sample { background: #134e4a; border-color: #0d9488; }
+    .flags-table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
+    .flags-table th, .flags-table td {
+      border-bottom: 1px solid var(--border);
+      padding: 0.4rem 0.35rem;
+      text-align: left;
+      vertical-align: top;
+    }
+    .flags-table th { color: var(--muted); font-weight: 500; }
+    .flags-table input, .flags-table select { font-size: 0.8rem; padding: 0.35rem; }
+    .output {
+      background: #080d12;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 0.75rem;
+      min-height: 12rem;
+      white-space: pre-wrap;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      overflow: auto;
+    }
+    .hint { font-size: 0.8rem; color: var(--muted); margin-top: 0.35rem; }
+    .actions { display: flex; gap: 0.5rem; flex-wrap: wrap; margin: 0.75rem 0; }
+    .badge {
+      display: inline-block;
+      font-size: 0.72rem;
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+      background: #334155;
+      color: var(--accent2);
+      margin-left: 0.35rem;
+    }
+    .steps {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin: 0.5rem 0 0;
+      padding-left: 1.2rem;
+    }
+    .steps li { margin: 0.25rem 0; }
+    .import-box { margin-bottom: 1rem; }
+    .import-box textarea { min-height: 4rem; }
+    details summary { cursor: pointer; color: var(--accent2); font-weight: 600; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>MCP Gateway Builder</h1>
+    <p>Generate drop-in <code>configs/*.json</code>, <code>servers.json</code> entries, and nginx OAuth routes. Copy output into the repo — nothing is written automatically.</p>
+  </header>
+  <main>
+    <div class="tabs">
+      <button type="button" class="tab active" data-tab="cli">Add CLI bridge</button>
+      <button type="button" class="tab" data-tab="endpoint">Add existing endpoint</button>
+    </div>
+
+    <section id="panel-cli" class="panel active">
+      <div class="grid grid-2">
+        <div>
+          <fieldset class="import-box">
+            <legend>Quick start</legend>
+            <div class="row inline">
+              <label for="cli-sample-select">Load preset</label>
+              <select id="cli-sample-select">
+                <option value="">— choose sample —</option>
+                <option value="grok">Grok CLI (live)</option>
+                <option value="vibe">Vibe CLI (live)</option>
+                <option value="qwen">Qwen CLI (live)</option>
+                <option value="agy">Agy CLI (live)</option>
+                <option value="openscad">OpenSCAD (live)</option>
+                <option value="claude">Claude CLI (disabled — not live)</option>
+                <option value="codex">Codex CLI (disabled — not live)</option>
+                <option value="gemini">Gemini CLI (disabled — not live)</option>
+              </select>
+              <button type="button" class="btn sample" id="cli-load-sample">Load</button>
+            </div>
+            <div class="row">
+              <label for="cli-import-json">Or paste existing config JSON</label>
+              <textarea id="cli-import-json" placeholder='Paste configs/grok.json contents…'></textarea>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn" id="cli-import">Import JSON → form</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>CLI identity</legend>
+            <div class="row">
+              <label for="cli-slug">Config slug <span class="badge">auto-fills paths</span></label>
+              <input id="cli-slug" type="text" placeholder="grok">
+            </div>
+            <div class="row">
+              <label for="cli-command">Command (path or JSON array)</label>
+              <input id="cli-command" type="text" placeholder="/home/user/.local/bin/grok">
+            </div>
+            <div class="row inline">
+              <label><input type="checkbox" id="cli-command-array"> Treat command as JSON array (e.g. codex exec)</label>
+            </div>
+            <div class="row">
+              <label for="cli-title">Title</label>
+              <input id="cli-title" type="text" placeholder="Grok CLI">
+            </div>
+            <div class="row">
+              <label for="cli-version">Version</label>
+              <input id="cli-version" type="text" placeholder="1.0">
+            </div>
+            <div class="row inline">
+              <label><input type="checkbox" id="cli-parse-help" checked> parse_help</label>
+              <label><input type="checkbox" id="cli-reject-unknown" checked> reject_unknown_params</label>
+              <label><input type="checkbox" id="cli-sandbox-outputs"> sandbox_outputs</label>
+              <label><input type="checkbox" id="cli-inline-binary" checked> inline_binary_outputs</label>
+            </div>
+            <div class="row">
+              <label for="cli-timeout">timeout_sec</label>
+              <input id="cli-timeout" type="number" value="600">
+            </div>
+            <div class="row">
+              <label for="cli-help-argv">help_argv (JSON array, optional)</label>
+              <input id="cli-help-argv" type="text" placeholder='["--help"]'>
+            </div>
+            <div class="row">
+              <label for="cli-blacklist">blacklist (comma-separated flag names to hide/block)</label>
+              <input id="cli-blacklist" type="text" placeholder="help,version,m">
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>working_directory</legend>
+            <div class="row">
+              <label for="cli-wd-mode">Mode</label>
+              <select id="cli-wd-mode">
+                <option value="request">request (caller supplies each call)</option>
+                <option value="fixed">fixed (server-side path only)</option>
+              </select>
+            </div>
+            <div class="row" id="cli-wd-request-fields">
+              <label for="cli-wd-param">param</label>
+              <input id="cli-wd-param" type="text" value="working_directory">
+              <label for="cli-wd-maps-flag" style="margin-top:0.5rem">maps_to_flag (optional)</label>
+              <input id="cli-wd-maps-flag" type="text" placeholder="cwd, workdir, cd">
+              <label for="cli-wd-roots" style="margin-top:0.5rem">allowed_roots (comma-separated)</label>
+              <input id="cli-wd-roots" type="text" placeholder="/home/chatgpt">
+              <label style="margin-top:0.5rem"><input type="checkbox" id="cli-wd-required" checked> required</label>
+            </div>
+            <div class="row" id="cli-wd-fixed-fields" style="display:none">
+              <label for="cli-wd-path">path</label>
+              <input id="cli-wd-path" type="text" placeholder="~/.openscad">
+              <label style="margin-top:0.5rem"><input type="checkbox" id="cli-wd-mkdir"> mkdir</label>
+            </div>
+            <div class="row">
+              <label for="cli-wd-desc">description</label>
+              <input id="cli-wd-desc" type="text" placeholder="Required per call: project directory">
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Prompt body_param</legend>
+            <div class="row">
+              <label for="cli-prompt-desc">description</label>
+              <input id="cli-prompt-desc" type="text" placeholder="Single-turn prompt">
+            </div>
+            <div class="row inline">
+              <label><input type="radio" name="cli-prompt-mode" value="flag" checked> maps_to_flag</label>
+              <label><input type="radio" name="cli-prompt-mode" value="positional"> positional input</label>
+            </div>
+            <div class="row" id="cli-prompt-flag-row">
+              <label for="cli-prompt-flag">maps_to_flag</label>
+              <input id="cli-prompt-flag" type="text" placeholder="single, print, prompt">
+            </div>
+            <div class="row inline">
+              <label><input type="checkbox" id="cli-prompt-required" checked> required</label>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Flags &amp; UX overrides</legend>
+            <p class="hint">Each row becomes whitelist + overrides entry. Check “in prompt” to include in POST /prompt. Set fixed value for headless defaults (fixed_flags).</p>
+            <table class="flags-table" id="cli-flags-table">
+              <thead>
+                <tr>
+                  <th>name</th>
+                  <th>openapi name</th>
+                  <th>description</th>
+                  <th>type</th>
+                  <th>enum (csv)</th>
+                  <th>in prompt</th>
+                  <th>fixed</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="cli-flags-body"></tbody>
+            </table>
+            <div class="actions">
+              <button type="button" class="btn" id="cli-add-flag">+ Add flag</button>
+            </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>Operations</legend>
+            <div class="row">
+              <label for="cli-op-id">Prompt operation id</label>
+              <input id="cli-op-id" type="text" value="prompt">
+            </div>
+            <div class="row">
+              <label for="cli-op-path">Prompt path</label>
+              <input id="cli-op-path" type="text" value="/prompt">
+            </div>
+            <div class="row">
+              <label for="cli-op-summary">Prompt summary</label>
+              <input id="cli-op-summary" type="text" placeholder="Run a single-turn prompt">
+            </div>
+            <div class="row">
+              <label for="cli-op-desc">Prompt description</label>
+              <input id="cli-op-desc" type="text" placeholder="Mandatory -p runs non-interactive mode">
+            </div>
+            <div class="row">
+              <label for="cli-version-argv">Version argv (JSON array)</label>
+              <input id="cli-version-argv" type="text" value='["--version"]'>
+            </div>
+          </fieldset>
+
+          <div class="actions">
+            <button type="button" class="btn primary" id="cli-generate">Generate CLI config</button>
+          </div>
+        </div>
+        <div>
+          <fieldset>
+            <legend>Output — configs/&lt;name&gt;.json</legend>
+            <div class="actions">
+              <button type="button" class="btn" id="cli-copy">Copy</button>
+            </div>
+            <pre class="output" id="cli-output">Fill the form and click Generate.</pre>
+          </fieldset>
+          <fieldset>
+            <legend>Optional — servers.json CLI entry</legend>
+            <div class="row inline">
+              <label><input type="checkbox" id="cli-include-server" checked> Generate matching *-cli servers entry</label>
+            </div>
+            <div class="row">
+              <label for="cli-server-name">Server key</label>
+              <input id="cli-server-name" type="text" placeholder="grok-cli">
+            </div>
+            <div class="row">
+              <label for="cli-mcp-port">MCP port</label>
+              <input id="cli-mcp-port" type="number" placeholder="8817">
+            </div>
+            <div class="row">
+              <label for="cli-bridge-port">cli_port (HTTP bridge)</label>
+              <input id="cli-bridge-port" type="number" placeholder="3861">
+            </div>
+            <div class="row">
+              <label for="cli-config-path">cli_config path</label>
+              <input id="cli-config-path" type="text" placeholder="configs/grok.json">
+            </div>
+            <pre class="output" id="cli-server-output" style="min-height:8rem">—</pre>
+            <pre class="output" id="cli-nginx-output" style="min-height:6rem;margin-top:0.5rem">—</pre>
+            <details>
+              <summary>Deploy checklist</summary>
+              <ol class="steps" id="cli-deploy-steps">
+                <li>Save config JSON to <code>configs/&lt;slug&gt;.json</code></li>
+                <li>Merge the <code>servers.json</code> fragment (comma before the new key)</li>
+                <li>Add the nginx location block to <code>nginx/mcp.conf</code></li>
+                <li>Restart the gateway / reload nginx</li>
+              </ol>
+            </details>
+          </fieldset>
+        </div>
+      </div>
+    </section>
+
+    <section id="panel-endpoint" class="panel">
+      <div class="grid grid-2">
+        <div>
+          <fieldset class="import-box">
+            <legend>Quick start</legend>
+            <div class="row inline">
+              <label for="ep-sample-select">Load preset</label>
+              <select id="ep-sample-select">
+                <option value="">— choose sample —</option>
+                <option value="gpt-terminal-plus">gpt-terminal-plus</option>
+                <option value="netbox">netbox (auth + yaml)</option>
+              </select>
+              <button type="button" class="btn sample" id="ep-load-sample">Load</button>
+            </div>
+            <div class="row">
+              <label for="ep-import-json">Or paste servers.json entry JSON</label>
+              <textarea id="ep-import-json" placeholder='{ "port": 8815, "spec_url": "...", "env": { ... } }'></textarea>
+            </div>
+            <div class="actions">
+              <button type="button" class="btn" id="ep-import">Import JSON → form</button>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Endpoint identity</legend>
+            <div class="row">
+              <label for="ep-name">Server key (nginx path segment)</label>
+              <input id="ep-name" type="text" placeholder="gpt-terminal-plus">
+            </div>
+            <div class="row">
+              <label for="ep-port">port (localhost MCP supergateway)</label>
+              <input id="ep-port" type="number" placeholder="8815">
+            </div>
+            <div class="row">
+              <label for="ep-spec">spec_url</label>
+              <input id="ep-spec" type="text" placeholder="http://localhost:3100/openapi.json">
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>env</legend>
+            <div class="row">
+              <label for="ep-whitelist">TOOL_WHITELIST (comma paths)</label>
+              <textarea id="ep-whitelist" placeholder="/command/execute-shell,/file/read"></textarea>
+            </div>
+            <div class="row">
+              <label for="ep-server-override">SERVER_URL_OVERRIDE</label>
+              <input id="ep-server-override" type="text" placeholder="http://localhost:3100">
+            </div>
+            <div class="row">
+              <label for="ep-api-key">API_KEY (placeholder)</label>
+              <input id="ep-api-key" type="text" placeholder="${TERMINAL_API_KEY}">
+            </div>
+            <div class="row">
+              <label for="ep-auth-type">API_AUTH_TYPE</label>
+              <input id="ep-auth-type" type="text" placeholder="Bearer">
+            </div>
+            <div class="row">
+              <label for="ep-spec-format">OPENAPI_SPEC_FORMAT</label>
+              <input id="ep-spec-format" type="text" placeholder="json or yaml">
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Extra env vars</legend>
+            <p class="hint">Common keys: STRIP_PARAM, TOOL_NAME_PREFIX, EXTRA_HEADERS, API_AUTH_HEADER</p>
+            <table class="flags-table" id="ep-env-table">
+              <thead><tr><th>key</th><th>value</th><th></th></tr></thead>
+              <tbody id="ep-env-body"></tbody>
+            </table>
+            <div class="actions"><button type="button" class="btn" id="ep-add-env">+ Add env var</button></div>
+          </fieldset>
+          <div class="actions">
+            <button type="button" class="btn primary" id="ep-generate">Generate endpoint snippets</button>
+          </div>
+        </div>
+        <div>
+          <fieldset>
+            <legend>servers.json entry</legend>
+            <div class="actions"><button type="button" class="btn" id="ep-copy-servers">Copy</button></div>
+            <pre class="output" id="ep-servers-output">Fill the form and click Generate.</pre>
+          </fieldset>
+          <fieldset>
+            <legend>nginx location block</legend>
+            <div class="actions"><button type="button" class="btn" id="ep-copy-nginx">Copy</button></div>
+            <pre class="output" id="ep-nginx-output">—</pre>
+            <details>
+              <summary>Deploy checklist</summary>
+              <ol class="steps">
+                <li>Merge the <code>servers.json</code> fragment under a new key</li>
+                <li>Add the nginx <code>/oauth/ex/&lt;name&gt;/mcp</code> location block</li>
+                <li>Ensure the upstream service is running on the configured port</li>
+                <li>Restart gateway / reload nginx</li>
+              </ol>
+            </details>
+          </fieldset>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- GENERATORS: pure functions on window.McpGatewayGenerators (testable without DOM) -->
+  <script>
+  (function (global) {
+    "use strict";
+
+    function parseJsonArray(text, fallback) {
+      if (!text || !String(text).trim()) return fallback;
+      try {
+        var v = JSON.parse(text);
+        return Array.isArray(v) ? v : fallback;
+      } catch (e) {
+        return fallback;
+      }
+    }
+
+    function splitCsv(text) {
+      if (!text || !String(text).trim()) return [];
+      return String(text).split(",").map(function (s) { return s.trim(); }).filter(Boolean);
+    }
+
+    function parseCommand(cmdText, asArray) {
+      var t = String(cmdText || "").trim();
+      if (!t) return "";
+      if (asArray) {
+        var parsed = parseJsonArray(t, null);
+        if (parsed) return parsed;
+        return t.split(/\s+/);
+      }
+      return t;
+    }
+
+    function buildWorkingDirectory(state) {
+      var wd = { mode: state.wdMode || "request" };
+      if (state.wdDescription) wd.description = state.wdDescription;
+      if (wd.mode === "fixed") {
+        if (state.wdPath) wd.path = state.wdPath;
+        if (state.wdMkdir) wd.mkdir = true;
+        return wd;
+      }
+      wd.param = state.wdParam || "working_directory";
+      if (state.wdMapsFlag) wd.maps_to_flag = state.wdMapsFlag;
+      if (state.wdRequired !== false) wd.required = true;
+      if (state.wdRoots && state.wdRoots.length) wd.allowed_roots = state.wdRoots;
+      return wd;
+    }
+
+    function buildOverrides(flags) {
+      var overrides = {};
+      (flags || []).forEach(function (f) {
+        if (!f.name) return;
+        var o = {};
+        if (f.openapiName) o.name = f.openapiName;
+        if (f.description) o.description = f.description;
+        if (f.type && f.type !== "string") o.type = f.type;
+        if (f.enumValues && f.enumValues.length) o.enum = f.enumValues;
+        if (Object.keys(o).length) overrides[f.name] = o;
+      });
+      return overrides;
+    }
+
+    function buildFixedFlags(flags) {
+      var fixed = {};
+      (flags || []).forEach(function (f) {
+        if (!f.name || f.fixedValue === undefined || f.fixedValue === null || f.fixedValue === "") return;
+        if (f.fixedValue === "true") fixed[f.name] = true;
+        else if (f.fixedValue === "false") fixed[f.name] = false;
+        else if (/^-?\d+$/.test(f.fixedValue)) fixed[f.name] = parseInt(f.fixedValue, 10);
+        else fixed[f.name] = f.fixedValue;
+      });
+      return fixed;
+    }
+
+    /**
+     * OpenSCAD: separate PNG preview vs STL export tools sharing ~/.openscad sandbox.
+     */
+    function buildOpenscadConfig(state) {
+      var flags = state.flags || [];
+      var pngFlags = flags.filter(function (f) { return f.inPrompt !== false && f.name && f.group !== "stl"; }).map(function (f) { return f.name; });
+      var stlFlags = flags.filter(function (f) { return f.inPrompt !== false && f.name && f.group === "stl"; }).map(function (f) { return f.name; });
+      if (!stlFlags.length) stlFlags = ["D"];
+      if (!pngFlags.length) {
+        pngFlags = ["D", "imgsize", "render", "preview", "colorscheme", "camera", "autocenter", "viewall", "projection"];
+      }
+      var cfg = {
+        command: parseCommand(state.command, state.commandAsArray),
+        title: state.title || "OpenSCAD",
+        version: state.version || "2021.01",
+        parse_help: state.parseHelp !== false,
+        timeout_sec: parseInt(state.timeoutSec, 10) || 120,
+        working_directory: buildWorkingDirectory(state),
+        reject_unknown_params: state.rejectUnknown !== false,
+        sandbox_outputs: true,
+        inline_binary_outputs: state.inlineBinary !== false,
+        sandbox_files: {
+          allowed_suffixes: [".scad", ".stl", ".png", ".svg", ".pdf", ".off", ".amf", ".3mf", ".dxf"],
+          upload_suffixes: [".scad"],
+          max_bytes: 2000000,
+          resource_dirs: [".", "previews", "renders", "exports"],
+          list_recursive: true,
+          public_slug: "openscad"
+        },
+        whitelist: flags.map(function (f) { return f.name; }).filter(Boolean),
+        overrides: buildOverrides(flags),
+        body_params: {
+          scad: {
+            description: "Inline SCAD source (one-shot). For multi-file designs, upload SCAD first and pass `filename` instead.",
+            write_temp: true,
+            suffix: ".scad",
+            positional: "input"
+          },
+          output_name: {
+            description: "Optional sandbox output path (e.g. bracket.png, previews/bracket.png). Defaults to <input-stem>.<ext>."
+          },
+          return_inline: {
+            type: "boolean",
+            default: false,
+            description: "If false (default): save to sandbox and return public preview URL (MCP_PUBLIC_URL/sandbox/openscad/…). If true: embed PNG/STL bytes in the tool response."
+          }
+        },
+        operations: [
+          {
+            id: "render_png",
+            path: "/render/png",
+            method: "post",
+            summary: "Preview SCAD as PNG (MCP chat image)",
+            description: "Default return_inline=false: saves PNG to sandbox, returns filename + public URL. Set return_inline=true for embedded ImageContent.",
+            input_one_of: ["scad", "filename"],
+            include_flags: pngFlags,
+            include_body_params: ["output_name", "return_inline"],
+            persist_output: true,
+            auto_output: true,
+            output_format: { param: "output_format", default: "png", expose: false, enum: ["png"] }
+          },
+          {
+            id: "render_stl",
+            path: "/render/stl",
+            method: "post",
+            summary: "Export SCAD as STL mesh (3D printing / CAD)",
+            description: "Default return_inline=false: saves STL to sandbox, returns filename + sandbox_uri. Set return_inline=true for embedded blob.",
+            input_one_of: ["scad", "filename"],
+            include_flags: stlFlags,
+            include_body_params: ["output_name", "return_inline"],
+            persist_output: true,
+            auto_output: true,
+            output_format: { param: "output_format", default: "stl", expose: false, enum: ["stl", "asciistl", "binstl"] }
+          },
+          {
+            id: "upload_file",
+            type: "upload_file",
+            path: "/files",
+            method: "post",
+            summary: "Upload SCAD to the shared sandbox",
+            description: "Store .scad under ~/.openscad so render_png and render_stl can both use `filename`."
+          },
+          {
+            id: "download_file",
+            type: "download_file",
+            path: "/files/{filepath}",
+            method: "get",
+            path_params: ["filepath"],
+            summary: "Download a sandbox file (PNG, STL, SCAD, …)",
+            description: "Fetch a persisted artifact by sandbox-relative path without re-rendering."
+          },
+          {
+            id: "list_files",
+            type: "list_files",
+            path: "/files",
+            method: "get",
+            summary: "List sandbox SCAD sources and rendered outputs"
+          },
+          {
+            id: "delete_file",
+            type: "delete_file",
+            path: "/files/{filepath}",
+            method: "delete",
+            path_params: ["filepath"],
+            summary: "Delete a sandbox file"
+          },
+          {
+            id: "version",
+            path: "/version",
+            method: "get",
+            summary: "Get OpenSCAD version",
+            argv: parseJsonArray(state.versionArgv, ["--version"])
+          }
+        ]
+      };
+      if (state.blacklist && state.blacklist.length) cfg.blacklist = state.blacklist;
+      return cfg;
+    }
+
+    /**
+     * @param {object} state - plain object describing CLI form (see collectCliState in DOM section)
+     * @returns {object} cli_bridge config JSON
+     */
+    function generateCliConfig(state) {
+      if (state.slug === "openscad") return buildOpenscadConfig(state);
+      var flags = state.flags || [];
+      var whitelist = flags.map(function (f) { return f.name; }).filter(Boolean);
+      var includeFlags = flags.filter(function (f) { return f.inPrompt !== false && f.name; }).map(function (f) { return f.name; });
+      var fixedFlags = buildFixedFlags(flags);
+
+      var bodyParams = {};
+      var promptParam = { required: state.promptRequired !== false };
+      if (state.promptDescription) promptParam.description = state.promptDescription;
+      if (state.promptMode === "positional") {
+        promptParam.positional = "input";
+      } else if (state.promptMapsFlag) {
+        promptParam.maps_to_flag = state.promptMapsFlag;
+      }
+      bodyParams.prompt = promptParam;
+
+      var promptOp = {
+        id: state.opId || "prompt",
+        path: state.opPath || "/prompt",
+        method: "post",
+        summary: state.opSummary || "Run prompt",
+        description: state.opDescription || "",
+        include_body_params: ["prompt"],
+        include_flags: includeFlags
+      };
+      if (Object.keys(fixedFlags).length) promptOp.fixed_flags = fixedFlags;
+
+      var versionArgv = parseJsonArray(state.versionArgv, ["--version"]);
+      var operations = [
+        promptOp,
+        {
+          id: "version",
+          path: "/version",
+          method: "get",
+          summary: "Get CLI version",
+          argv: versionArgv
+        }
+      ];
+
+      var cfg = {
+        command: parseCommand(state.command, state.commandAsArray),
+        title: state.title || "CLI",
+        version: state.version || "1.0",
+        parse_help: state.parseHelp !== false,
+        timeout_sec: parseInt(state.timeoutSec, 10) || 600,
+        working_directory: buildWorkingDirectory(state),
+        reject_unknown_params: state.rejectUnknown !== false,
+        whitelist: whitelist,
+        overrides: buildOverrides(flags),
+        body_params: bodyParams,
+        operations: operations
+      };
+
+      if (state.sandboxOutputs) cfg.sandbox_outputs = true;
+      if (state.inlineBinary !== false) cfg.inline_binary_outputs = true;
+      var helpArgv = parseJsonArray(state.helpArgv, null);
+      if (helpArgv) cfg.help_argv = helpArgv;
+      if (state.blacklist && state.blacklist.length) cfg.blacklist = state.blacklist;
+
+      return cfg;
+    }
+
+    /**
+     * Reverse a cli_bridge config JSON into form state (for import / edit).
+     */
+    function parseCliConfig(cfg) {
+      cfg = cfg || {};
+      var wd = cfg.working_directory || {};
+      var promptMeta = (cfg.body_params && cfg.body_params.prompt) || {};
+      var promptOp = (cfg.operations || []).find(function (op) {
+        return op.method === "post" && (op.path === "/prompt" || op.id === "prompt");
+      }) || (cfg.operations || [])[0] || {};
+      var fixed = promptOp.fixed_flags || {};
+      var includeFlags = promptOp.include_flags || [];
+      var flags = (cfg.whitelist || []).map(function (name) {
+        var ov = (cfg.overrides || {})[name] || {};
+        var fixedVal = fixed[name];
+        return {
+          name: name,
+          openapiName: ov.name || "",
+          description: ov.description || "",
+          type: ov.type || "string",
+          enumCsv: (ov.enum || []).join(", "),
+          inPrompt: includeFlags.indexOf(name) >= 0,
+          fixedValue: fixedVal === undefined ? "" : String(fixedVal)
+        };
+      });
+
+      var cmd = cfg.command;
+      var commandAsArray = Array.isArray(cmd);
+      return {
+        slug: "",
+        command: commandAsArray ? JSON.stringify(cmd) : (cmd || ""),
+        commandAsArray: commandAsArray,
+        title: cfg.title || "",
+        version: cfg.version || "",
+        parseHelp: cfg.parse_help !== false,
+        rejectUnknown: cfg.reject_unknown_params !== false,
+        sandboxOutputs: !!cfg.sandbox_outputs,
+        inlineBinary: cfg.inline_binary_outputs !== false,
+        timeoutSec: cfg.timeout_sec || 600,
+        helpArgv: cfg.help_argv ? JSON.stringify(cfg.help_argv) : "",
+        blacklist: cfg.blacklist || [],
+        wdMode: wd.mode || "request",
+        wdParam: wd.param || "working_directory",
+        wdMapsFlag: wd.maps_to_flag || "",
+        wdRoots: wd.allowed_roots || [],
+        wdRequired: wd.required !== false,
+        wdPath: wd.path || "",
+        wdMkdir: !!wd.mkdir,
+        wdDescription: wd.description || "",
+        promptDescription: promptMeta.description || "",
+        promptMode: promptMeta.positional ? "positional" : "flag",
+        promptMapsFlag: promptMeta.maps_to_flag || "",
+        promptRequired: promptMeta.required !== false,
+        flags: flags,
+        opId: promptOp.id || "prompt",
+        opPath: promptOp.path || "/prompt",
+        opSummary: promptOp.summary || "",
+        opDescription: promptOp.description || "",
+        versionArgv: JSON.stringify(
+          ((cfg.operations || []).find(function (op) { return op.id === "version"; }) || {}).argv || ["--version"]
+        ),
+        serverName: "",
+        mcpPort: "",
+        cliBridgePort: "",
+        configPath: ""
+      };
+    }
+
+    function generateCliConfigJson(state) {
+      return JSON.stringify(generateCliConfig(state), null, 2);
+    }
+
+    /**
+     * servers.json entry for a CLI bridge (*-cli style, or openscad).
+     */
+    function generateCliServersEntry(state) {
+      var name = state.serverName || "my-cli";
+      var mcpPort = parseInt(state.mcpPort, 10) || 8817;
+      var cliPort = parseInt(state.cliBridgePort, 10) || 3861;
+      var cfgPath = state.configPath || "configs/my-cli.json";
+      var isOpenscad =
+        state.slug === "openscad" ||
+        name === "openscad" ||
+        /openscad/i.test(cfgPath || "");
+      var env = {
+        SERVER_URL_OVERRIDE: "http://localhost:" + cliPort
+      };
+      if (isOpenscad) {
+        env.TOOL_WHITELIST = "/render,/files,/version,/run";
+        env.TOOL_NAME_USE_OPERATION_ID = "true";
+        env.CAPABILITIES_RESOURCES = "true";
+      } else {
+        env.TOOL_WHITELIST = "/prompt,/version,/run";
+      }
+      var entry = {};
+      entry[name] = {
+        port: mcpPort,
+        cli_port: cliPort,
+        cli_config: cfgPath,
+        spec_url: "http://localhost:" + cliPort + "/openapi.json",
+        env: env
+      };
+      return entry;
+    }
+
+    function formatServersFragment(entryObj) {
+      var keys = Object.keys(entryObj);
+      if (!keys.length) return "{}";
+      var k = keys[0];
+      var inner = JSON.stringify(entryObj[k], null, 2).split("\n").map(function (line) {
+        return "  " + line;
+      }).join("\n");
+      return '  "' + k + '": ' + inner.trim().replace(/^  /, "") + "\n";
+    }
+
+    /**
+     * nginx OAuth location block (gpt-terminal-plus style)
+     */
+    function generateNginxLocation(name, port) {
+      var n = String(name || "my-server").trim();
+      var p = parseInt(port, 10) || 8800;
+      return [
+        "    location /oauth/ex/" + n + "/mcp {",
+        "        auth_request /oauth-validate;",
+        "        error_page 401 = @mcp_oauth_401;",
+        "        rewrite ^/oauth/ex/" + n + "/mcp(/.*)?$ /mcp break;",
+        "        proxy_pass http://127.0.0.1:" + p + ";",
+        "        proxy_http_version 1.1;",
+        "        proxy_set_header Host $host;",
+        "        proxy_set_header Connection '';",
+        "        proxy_buffering off;",
+        "        proxy_read_timeout 3600s;",
+        "    }"
+      ].join("\n");
+    }
+
+    /**
+     * @param {object} state - endpoint form state
+     * @returns {{ serversEntry: object, serversFragment: string, nginxBlock: string }}
+     */
+    function generateEndpointArtifacts(state) {
+      var name = state.name || "my-server";
+      var port = parseInt(state.port, 10) || 8815;
+      var env = {};
+      if (state.toolWhitelist) {
+        env.TOOL_WHITELIST = state.toolWhitelist;
+      }
+      if (state.serverUrlOverride) env.SERVER_URL_OVERRIDE = state.serverUrlOverride;
+      if (state.apiKey) env.API_KEY = state.apiKey;
+      if (state.apiAuthType) env.API_AUTH_TYPE = state.apiAuthType;
+      if (state.openApiSpecFormat) env.OPENAPI_SPEC_FORMAT = state.openApiSpecFormat;
+      var extra = state.extraEnv || {};
+      Object.keys(extra).forEach(function (k) {
+        if (extra[k]) env[k] = extra[k];
+      });
+
+      var serversEntry = {};
+      serversEntry[name] = {
+        port: port,
+        spec_url: state.specUrl || "http://localhost/openapi.json",
+        env: env
+      };
+
+      return {
+        serversEntry: serversEntry,
+        serversFragment: formatServersFragment(serversEntry),
+        nginxBlock: generateNginxLocation(name, port)
+      };
+    }
+
+    function parseEndpointEntry(name, entry) {
+      entry = entry || {};
+      var env = entry.env || {};
+      var known = ["TOOL_WHITELIST", "SERVER_URL_OVERRIDE", "API_KEY", "API_AUTH_TYPE", "OPENAPI_SPEC_FORMAT"];
+      var extraEnv = {};
+      Object.keys(env).forEach(function (k) {
+        if (known.indexOf(k) < 0) extraEnv[k] = env[k];
+      });
+      return {
+        name: name || "",
+        port: entry.port || "",
+        specUrl: entry.spec_url || "",
+        toolWhitelist: env.TOOL_WHITELIST || "",
+        serverUrlOverride: env.SERVER_URL_OVERRIDE || "",
+        apiKey: env.API_KEY || "",
+        apiAuthType: env.API_AUTH_TYPE || "",
+        openApiSpecFormat: env.OPENAPI_SPEC_FORMAT || "",
+        extraEnv: extraEnv
+      };
+    }
+
+    var CLI_SAMPLES = {
+      grok: {
+        slug: "grok",
+        command: "/home/chatgpt/.local/bin/grok",
+        title: "Grok CLI",
+        version: "0.2.91",
+        wdMode: "request",
+        wdRequired: true,
+        wdMapsFlag: "cwd",
+        wdRoots: ["/home/chatgpt"],
+        wdDescription: "Required per call: project directory chosen by the MCP client (passed as --cwd)",
+        promptDescription: "Single-turn prompt (always passed as grok -p / --single)",
+        promptRequired: true,
+        promptMapsFlag: "single",
+        opSummary: "Run a single-turn Grok prompt",
+        opDescription: "Mandatory --single (-p) drives headless mode.",
+        serverName: "grok-cli",
+        mcpPort: 8817,
+        cliBridgePort: 3861,
+        configPath: "configs/grok.json",
+        flags: [
+          { name: "model", description: "Model ID", inPrompt: true },
+          { name: "effort", description: "Effort level", enumCsv: "low,medium,high,xhigh,max", inPrompt: true },
+          { name: "output-format", enumCsv: "plain,json,streaming-json", inPrompt: true },
+          { name: "no-alt-screen", fixedValue: "true", inPrompt: false }
+        ]
+      },
+      vibe: {
+        slug: "vibe",
+        command: "/home/chatgpt/.local/bin/vibe",
+        title: "Vibe CLI",
+        version: "2.14.1",
+        parseHelp: false,
+        wdMode: "request",
+        wdRequired: true,
+        wdMapsFlag: "workdir",
+        wdRoots: ["/home/chatgpt"],
+        promptDescription: "Single-turn prompt (passed as vibe -p / --prompt programmatic mode)",
+        promptRequired: true,
+        promptMapsFlag: "prompt",
+        serverName: "vibe-cli",
+        mcpPort: 8818,
+        cliBridgePort: 3862,
+        configPath: "configs/vibe.json",
+        versionArgv: '["-v"]',
+        flags: [
+          { name: "output", enumCsv: "text,json,streaming", inPrompt: true },
+          { name: "max-turns", type: "integer", inPrompt: true },
+          { name: "trust", fixedValue: "true", inPrompt: false }
+        ]
+      },
+      qwen: {
+        slug: "qwen",
+        command: "/usr/local/bin/qwen",
+        title: "Qwen CLI",
+        version: "0.19.3",
+        parseHelp: false,
+        wdMode: "request",
+        wdRequired: true,
+        wdRoots: ["/home/chatgpt"],
+        wdDescription: "Required per call: project directory (subprocess cwd)",
+        promptDescription: "Single-turn prompt (passed as qwen -p / --prompt non-interactive mode)",
+        promptRequired: true,
+        promptMapsFlag: "prompt",
+        opSummary: "Run a single-turn Qwen prompt",
+        opDescription: "Mandatory -p/--prompt runs non-interactive mode.",
+        serverName: "qwen-cli",
+        mcpPort: 8822,
+        cliBridgePort: 3866,
+        configPath: "configs/qwen.json",
+        flags: [
+          { name: "model", inPrompt: true },
+          { name: "output-format", enumCsv: "text,json,stream-json", inPrompt: true },
+          { name: "sandbox", type: "boolean", inPrompt: true },
+          { name: "yolo", type: "boolean", inPrompt: true },
+          { name: "approval-mode", enumCsv: "plan,default,auto-edit,auto,yolo", inPrompt: true }
+        ]
+      },
+      agy: {
+        slug: "agy",
+        command: "/home/chatgpt/.local/bin/agy",
+        title: "Agy CLI",
+        version: "1.0",
+        parseHelp: false,
+        wdMode: "request",
+        wdRequired: true,
+        wdRoots: ["/home/chatgpt"],
+        wdDescription: "Required per call: project directory (subprocess cwd)",
+        promptDescription: "Single-turn prompt (passed as agy --print / -p non-interactive mode)",
+        promptRequired: true,
+        promptMapsFlag: "print",
+        opSummary: "Run a single-turn Agy prompt",
+        opDescription: "Mandatory --print (-p) runs a single prompt non-interactively.",
+        serverName: "agy-cli",
+        mcpPort: 8823,
+        cliBridgePort: 3867,
+        configPath: "configs/agy.json",
+        flags: [
+          { name: "model", description: "Model for the session", inPrompt: true },
+          { name: "sandbox", type: "boolean", inPrompt: true },
+          { name: "dangerously-skip-permissions", type: "boolean", inPrompt: true },
+          { name: "print-timeout", description: "Timeout for print mode (e.g. 5m)", inPrompt: true }
+        ]
+      },
+      openscad: {
+        slug: "openscad",
+        command: '["/usr/bin/xvfb-run", "-a", "/usr/bin/openscad"]',
+        commandAsArray: true,
+        title: "OpenSCAD",
+        version: "2021.01",
+        timeoutSec: 120,
+        sandboxOutputs: true,
+        inlineBinary: true,
+        wdMode: "fixed",
+        wdPath: "~/.openscad",
+        wdMkdir: true,
+        wdDescription: "Shared sandbox: SCAD sources + persisted PNG/STL outputs",
+        opId: "render_png",
+        opPath: "/render/png",
+        opSummary: "Preview SCAD as PNG (separate from render_stl)",
+        blacklist: ["help", "h", "version", "v", "m", "s", "export-format"],
+        serverName: "openscad",
+        mcpPort: 8816,
+        cliBridgePort: 3860,
+        configPath: "configs/openscad.json",
+        flags: [
+          { name: "D", openapiName: "define", type: "array", description: "Pre-define SCAD variables", inPrompt: true, group: "stl" },
+          { name: "imgsize", description: "PNG size width,height", inPrompt: true, group: "png" },
+          { name: "render", type: "boolean", description: "Full geometry render for PNG", inPrompt: true, group: "png" },
+          { name: "preview", type: "boolean", inPrompt: true, group: "png" },
+          { name: "colorscheme", enumCsv: "Cornfield,Sunset,DeepOcean,Tomorrow Night", inPrompt: true, group: "png" },
+          { name: "camera", description: "PNG camera vector", inPrompt: true, group: "png" },
+          { name: "autocenter", type: "boolean", inPrompt: true, group: "png" },
+          { name: "viewall", type: "boolean", inPrompt: true, group: "png" },
+          { name: "projection", enumCsv: "ortho,perspective", inPrompt: true, group: "png" }
+        ]
+      },
+      claude: {
+        slug: "claude",
+        command: "/home/chatgpt/.local/bin/claude",
+        title: "Claude CLI (disabled on live host)",
+        version: "2.1.181",
+        wdMode: "request",
+        wdRequired: true,
+        wdRoots: ["/home/chatgpt"],
+        wdDescription: "Required per call: project directory (subprocess cwd)",
+        promptDescription: "Single-turn prompt (passed as claude -p / --print non-interactive mode)",
+        promptRequired: true,
+        promptMapsFlag: "print",
+        opSummary: "Run a single-turn Claude prompt",
+        opDescription: "DISABLED live: prompt path returned bridge 500. Config retained for re-enable.",
+        serverName: "claude-cli",
+        mcpPort: 8821,
+        cliBridgePort: 3865,
+        configPath: "configs/claude.json",
+        flags: [
+          { name: "model", description: "Model for the session", inPrompt: true },
+          { name: "effort", enumCsv: "low,medium,high,xhigh,max", inPrompt: true },
+          { name: "output-format", enumCsv: "text,json,stream-json", inPrompt: true },
+          { name: "permission-mode", enumCsv: "acceptEdits,auto,bypassPermissions,default,dontAsk,plan", inPrompt: true }
+        ]
+      },
+      codex: {
+        slug: "codex",
+        command: '["/usr/local/bin/codex", "exec"]',
+        commandAsArray: true,
+        title: "Codex CLI (disabled on live host)",
+        version: "0.142.3",
+        sandboxOutputs: false,
+        wdMode: "request",
+        wdRequired: true,
+        wdMapsFlag: "cd",
+        wdRoots: ["/home/chatgpt"],
+        wdDescription: "Required per call: project directory (passed as --cd)",
+        promptDescription: "Single-turn instructions (codex exec positional prompt). Keep sandbox_outputs false.",
+        promptRequired: true,
+        promptMode: "positional",
+        opSummary: "Run Codex non-interactively",
+        opDescription: "DISABLED live: positional prompt + sandbox_outputs bug. sandbox_outputs forced false in this preset.",
+        serverName: "codex-cli",
+        mcpPort: 8820,
+        cliBridgePort: 3864,
+        configPath: "configs/codex.json",
+        flags: [
+          { name: "model", description: "Model the agent should use", inPrompt: true },
+          { name: "sandbox", enumCsv: "read-only,workspace-write,danger-full-access", inPrompt: true },
+          { name: "search", type: "boolean", inPrompt: true },
+          { name: "ephemeral", type: "boolean", inPrompt: true }
+        ]
+      },
+      gemini: {
+        slug: "gemini",
+        command: "/usr/local/bin/gemini",
+        title: "Gemini CLI (disabled on live host)",
+        version: "0.37.1",
+        parseHelp: false,
+        wdMode: "request",
+        wdRequired: true,
+        wdRoots: ["/home/chatgpt"],
+        promptDescription: "Single-turn prompt (passed as gemini -p / --prompt headless mode)",
+        promptRequired: true,
+        promptMapsFlag: "prompt",
+        opDescription: "DISABLED live: prompt path returned bridge 500. parse_help false (help hangs).",
+        serverName: "gemini-cli",
+        mcpPort: 8819,
+        cliBridgePort: 3863,
+        configPath: "configs/gemini.json",
+        versionArgv: '["-v"]',
+        flags: [
+          { name: "model", inPrompt: true },
+          { name: "output-format", enumCsv: "text,json,stream-json", inPrompt: true },
+          { name: "sandbox", type: "boolean", inPrompt: true },
+          { name: "approval-mode", enumCsv: "default,auto_edit,yolo,plan", inPrompt: true }
+        ]
+      }
+    };
+
+    var ENDPOINT_SAMPLES = {
+      "gpt-terminal-plus": {
+        name: "gpt-terminal-plus",
+        port: 8815,
+        specUrl: "http://localhost:3100/openapi.json",
+        toolWhitelist: "/command/execute-shell,/command/executors,/server/list,/server/set,/file/create,/file/read,/file/list,/file/update,/file/patch,/file/diff",
+        serverUrlOverride: "http://localhost:3100",
+        apiKey: "${TERMINAL_API_KEY}",
+        apiAuthType: "Bearer"
+      },
+      netbox: {
+        name: "netbox",
+        port: 8809,
+        specUrl: "http://localhost:8000/api/schema/",
+        toolWhitelist: "/api/dcim/devices,/api/ipam/ip-addresses,/api/ipam/prefixes",
+        serverUrlOverride: "http://localhost:8000",
+        apiKey: "${NETBOX_API_KEY}",
+        apiAuthType: "Token",
+        openApiSpecFormat: "yaml",
+        extraEnv: { API_AUTH_HEADER: "Authorization" }
+      }
+    };
+
+    global.McpGatewayGenerators = {
+      generateCliConfig: generateCliConfig,
+      buildOpenscadConfig: buildOpenscadConfig,
+      generateCliConfigJson: generateCliConfigJson,
+      generateCliServersEntry: generateCliServersEntry,
+      generateNginxLocation: generateNginxLocation,
+      generateEndpointArtifacts: generateEndpointArtifacts,
+      formatServersFragment: formatServersFragment,
+      parseCliConfig: parseCliConfig,
+      parseEndpointEntry: parseEndpointEntry,
+      CLI_SAMPLES: CLI_SAMPLES,
+      ENDPOINT_SAMPLES: ENDPOINT_SAMPLES,
+      _internals: {
+        parseJsonArray: parseJsonArray,
+        splitCsv: splitCsv,
+        buildWorkingDirectory: buildWorkingDirectory,
+        buildOverrides: buildOverrides
+      }
+    };
+  })(typeof window !== "undefined" ? window : this);
+  </script>
+
+  <!-- DOM wiring (not required for unit tests) -->
+  <script>
+  (function () {
+    "use strict";
+    var G = window.McpGatewayGenerators;
+
+    function $(id) { return document.getElementById(id); }
+
+    document.querySelectorAll(".tab").forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        document.querySelectorAll(".tab").forEach(function (b) { b.classList.remove("active"); });
+        document.querySelectorAll(".panel").forEach(function (p) { p.classList.remove("active"); });
+        btn.classList.add("active");
+        $("panel-" + btn.getAttribute("data-tab")).classList.add("active");
+      });
+    });
+
+    $("cli-wd-mode").addEventListener("change", function () {
+      var fixed = $("cli-wd-mode").value === "fixed";
+      $("cli-wd-request-fields").style.display = fixed ? "none" : "block";
+      $("cli-wd-fixed-fields").style.display = fixed ? "block" : "none";
+    });
+
+    document.querySelectorAll('input[name="cli-prompt-mode"]').forEach(function (r) {
+      r.addEventListener("change", function () {
+        $("cli-prompt-flag-row").style.display = r.value === "flag" && r.checked ? "block" : "none";
+      });
+    });
+
+    function escAttr(s) {
+      return String(s || "").replace(/&/g, "&amp;").replace(/"/g, "&quot;").replace(/</g, "&lt;");
+    }
+
+    function addFlagRow(data) {
+      data = data || {};
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><input class="f-name" value="' + escAttr(data.name) + '"></td>' +
+        '<td><input class="f-oname" value="' + escAttr(data.openapiName) + '"></td>' +
+        '<td><input class="f-desc" value="' + escAttr(data.description) + '"></td>' +
+        '<td><select class="f-type"><option value="string">string</option><option value="integer">integer</option><option value="boolean">boolean</option><option value="array">array</option></select></td>' +
+        '<td><input class="f-enum" placeholder="a,b,c" value="' + escAttr(data.enumCsv) + '"></td>' +
+        '<td><input type="checkbox" class="f-inprompt" ' + (data.inPrompt !== false ? "checked" : "") + "></td>" +
+        '<td><input class="f-fixed" placeholder="true" value="' + escAttr(data.fixedValue) + '"></td>' +
+        '<td><button type="button" class="btn rm-flag">×</button></td>';
+      tr.querySelector(".f-type").value = data.type || "string";
+      tr.querySelector(".rm-flag").addEventListener("click", function () { tr.remove(); });
+      $("cli-flags-body").appendChild(tr);
+    }
+
+    function addEnvRow(data) {
+      data = data || {};
+      var tr = document.createElement("tr");
+      tr.innerHTML =
+        '<td><input class="e-key" value="' + escAttr(data.key) + '"></td>' +
+        '<td><input class="e-val" value="' + escAttr(data.value) + '"></td>' +
+        '<td><button type="button" class="btn rm-env">×</button></td>';
+      tr.querySelector(".rm-env").addEventListener("click", function () { tr.remove(); });
+      $("ep-env-body").appendChild(tr);
+    }
+
+    function syncSlugPaths() {
+      var slug = $("cli-slug").value.trim();
+      if (!slug) return;
+      if (!$("cli-server-name").value) $("cli-server-name").value = slug + "-cli";
+      if (!$("cli-config-path").value) $("cli-config-path").value = "configs/" + slug + ".json";
+    }
+
+    $("cli-slug").addEventListener("input", syncSlugPaths);
+
+    $("cli-add-flag").addEventListener("click", function () { addFlagRow(); });
+
+    function collectFlags() {
+      return Array.prototype.map.call($("cli-flags-body").querySelectorAll("tr"), function (tr) {
+        return {
+          name: tr.querySelector(".f-name").value.trim(),
+          openapiName: tr.querySelector(".f-oname").value.trim(),
+          description: tr.querySelector(".f-desc").value.trim(),
+          type: tr.querySelector(".f-type").value,
+          enumValues: G._internals.splitCsv(tr.querySelector(".f-enum").value),
+          inPrompt: tr.querySelector(".f-inprompt").checked,
+          fixedValue: tr.querySelector(".f-fixed").value.trim()
+        };
+      }).filter(function (f) { return f.name; });
+    }
+
+    function collectExtraEnv() {
+      var env = {};
+      Array.prototype.forEach.call($("ep-env-body").querySelectorAll("tr"), function (tr) {
+        var k = tr.querySelector(".e-key").value.trim();
+        var v = tr.querySelector(".e-val").value.trim();
+        if (k) env[k] = v;
+      });
+      return env;
+    }
+
+    function collectCliState() {
+      var promptMode = document.querySelector('input[name="cli-prompt-mode"]:checked').value;
+      return {
+        slug: $("cli-slug").value.trim(),
+        command: $("cli-command").value,
+        commandAsArray: $("cli-command-array").checked,
+        title: $("cli-title").value,
+        version: $("cli-version").value,
+        parseHelp: $("cli-parse-help").checked,
+        rejectUnknown: $("cli-reject-unknown").checked,
+        sandboxOutputs: $("cli-sandbox-outputs").checked,
+        inlineBinary: $("cli-inline-binary").checked,
+        timeoutSec: $("cli-timeout").value,
+        helpArgv: $("cli-help-argv").value,
+        blacklist: G._internals.splitCsv($("cli-blacklist").value),
+        wdMode: $("cli-wd-mode").value,
+        wdParam: $("cli-wd-param").value,
+        wdMapsFlag: $("cli-wd-maps-flag").value,
+        wdRoots: G._internals.splitCsv($("cli-wd-roots").value),
+        wdRequired: $("cli-wd-required").checked,
+        wdPath: $("cli-wd-path").value,
+        wdMkdir: $("cli-wd-mkdir").checked,
+        wdDescription: $("cli-wd-desc").value,
+        promptDescription: $("cli-prompt-desc").value,
+        promptMode: promptMode,
+        promptMapsFlag: $("cli-prompt-flag").value,
+        promptRequired: $("cli-prompt-required").checked,
+        flags: collectFlags(),
+        opId: $("cli-op-id").value,
+        opPath: $("cli-op-path").value,
+        opSummary: $("cli-op-summary").value,
+        opDescription: $("cli-op-desc").value,
+        versionArgv: $("cli-version-argv").value,
+        serverName: $("cli-server-name").value,
+        mcpPort: $("cli-mcp-port").value,
+        cliBridgePort: $("cli-bridge-port").value,
+        configPath: $("cli-config-path").value
+      };
+    }
+
+    function applyCliSample(sample) {
+      $("cli-slug").value = sample.slug || "";
+      $("cli-command").value = sample.command;
+      $("cli-command-array").checked = !!sample.commandAsArray;
+      $("cli-title").value = sample.title;
+      $("cli-version").value = sample.version;
+      $("cli-parse-help").checked = sample.parseHelp !== false;
+      $("cli-reject-unknown").checked = sample.rejectUnknown !== false;
+      $("cli-sandbox-outputs").checked = !!sample.sandboxOutputs;
+      $("cli-inline-binary").checked = sample.inlineBinary !== false;
+      $("cli-timeout").value = sample.timeoutSec || 600;
+      $("cli-help-argv").value = sample.helpArgv || "";
+      $("cli-blacklist").value = (sample.blacklist || []).join(", ");
+      $("cli-wd-mode").value = sample.wdMode || "request";
+      $("cli-wd-mode").dispatchEvent(new Event("change"));
+      $("cli-wd-param").value = sample.wdParam || "working_directory";
+      $("cli-wd-maps-flag").value = sample.wdMapsFlag || "";
+      $("cli-wd-roots").value = (sample.wdRoots || []).join(", ");
+      $("cli-wd-required").checked = sample.wdRequired !== false;
+      $("cli-wd-path").value = sample.wdPath || "";
+      $("cli-wd-mkdir").checked = !!sample.wdMkdir;
+      $("cli-wd-desc").value = sample.wdDescription || "";
+      $("cli-prompt-desc").value = sample.promptDescription || "";
+      document.querySelector('input[name="cli-prompt-mode"][value="' + (sample.promptMode || "flag") + '"]').checked = true;
+      document.querySelector('input[name="cli-prompt-mode"]:checked').dispatchEvent(new Event("change"));
+      $("cli-prompt-flag").value = sample.promptMapsFlag || "";
+      $("cli-op-id").value = sample.opId || "prompt";
+      $("cli-op-path").value = sample.opPath || "/prompt";
+      $("cli-op-summary").value = sample.opSummary || "";
+      $("cli-op-desc").value = sample.opDescription || "";
+      $("cli-version-argv").value = sample.versionArgv || '["--version"]';
+      $("cli-server-name").value = sample.serverName || "";
+      $("cli-mcp-port").value = sample.mcpPort || "";
+      $("cli-bridge-port").value = sample.cliBridgePort || "";
+      $("cli-config-path").value = sample.configPath || "";
+      $("cli-flags-body").innerHTML = "";
+      (sample.flags || []).forEach(addFlagRow);
+    }
+
+    $("cli-load-sample").addEventListener("click", function () {
+      var key = $("cli-sample-select").value;
+      if (!key || !G.CLI_SAMPLES[key]) return;
+      applyCliSample(G.CLI_SAMPLES[key]);
+    });
+
+    $("cli-import").addEventListener("click", function () {
+      try {
+        var raw = JSON.parse($("cli-import-json").value);
+        applyCliSample(G.parseCliConfig(raw));
+      } catch (e) {
+        alert("Invalid JSON: " + e.message);
+      }
+    });
+
+    $("cli-generate").addEventListener("click", function () {
+      var state = collectCliState();
+      var json = G.generateCliConfigJson(state);
+      $("cli-output").textContent = json;
+      if ($("cli-include-server").checked) {
+        var srv = G.generateCliServersEntry(state);
+        $("cli-server-output").textContent = formatServersFragment(srv);
+        var key = Object.keys(srv)[0];
+        $("cli-nginx-output").textContent = G.generateNginxLocation(key, state.mcpPort);
+      } else {
+        $("cli-server-output").textContent = "—";
+        $("cli-nginx-output").textContent = "—";
+      }
+    });
+
+    function formatServersFragment(entryObj) {
+      return G.formatServersFragment(entryObj);
+    }
+
+    $("cli-copy").addEventListener("click", function () {
+      navigator.clipboard.writeText($("cli-output").textContent);
+    });
+
+    function applyEndpointSample(sample) {
+      $("ep-name").value = sample.name || "";
+      $("ep-port").value = sample.port || "";
+      $("ep-spec").value = sample.specUrl || "";
+      $("ep-whitelist").value = sample.toolWhitelist || "";
+      $("ep-server-override").value = sample.serverUrlOverride || "";
+      $("ep-api-key").value = sample.apiKey || "";
+      $("ep-auth-type").value = sample.apiAuthType || "";
+      $("ep-spec-format").value = sample.openApiSpecFormat || "";
+      $("ep-env-body").innerHTML = "";
+      Object.keys(sample.extraEnv || {}).forEach(function (k) {
+        addEnvRow({ key: k, value: sample.extraEnv[k] });
+      });
+    }
+
+    function collectEndpointState() {
+      return {
+        name: $("ep-name").value,
+        port: $("ep-port").value,
+        specUrl: $("ep-spec").value,
+        toolWhitelist: $("ep-whitelist").value.trim(),
+        serverUrlOverride: $("ep-server-override").value,
+        apiKey: $("ep-api-key").value,
+        apiAuthType: $("ep-auth-type").value,
+        openApiSpecFormat: $("ep-spec-format").value,
+        extraEnv: collectExtraEnv()
+      };
+    }
+
+    $("ep-load-sample").addEventListener("click", function () {
+      var key = $("ep-sample-select").value;
+      if (!key || !G.ENDPOINT_SAMPLES[key]) return;
+      applyEndpointSample(G.ENDPOINT_SAMPLES[key]);
+    });
+
+    $("ep-import").addEventListener("click", function () {
+      try {
+        var raw = JSON.parse($("ep-import-json").value);
+        var name = $("ep-name").value.trim();
+        if (!name) {
+          alert("Set server key (name) first, or paste a full { \"name\": { ... } } object.");
+          return;
+        }
+        if (raw.port !== undefined || raw.spec_url !== undefined) {
+          applyEndpointSample(G.parseEndpointEntry(name, raw));
+        } else {
+          var keys = Object.keys(raw);
+          if (keys.length === 1) {
+            applyEndpointSample(G.parseEndpointEntry(keys[0], raw[keys[0]]));
+            $("ep-name").value = keys[0];
+          } else {
+            throw new Error("Expected a single servers.json entry");
+          }
+        }
+      } catch (e) {
+        alert("Invalid JSON: " + e.message);
+      }
+    });
+
+    $("ep-add-env").addEventListener("click", function () { addEnvRow(); });
+
+    $("ep-generate").addEventListener("click", function () {
+      var art = G.generateEndpointArtifacts(collectEndpointState());
+      $("ep-servers-output").textContent = art.serversFragment;
+      $("ep-nginx-output").textContent = art.nginxBlock;
+    });
+
+    $("ep-copy-servers").addEventListener("click", function () {
+      navigator.clipboard.writeText($("ep-servers-output").textContent);
+    });
+    $("ep-copy-nginx").addEventListener("click", function () {
+      navigator.clipboard.writeText($("ep-nginx-output").textContent);
+    });
+
+    addFlagRow({ name: "model", description: "Model ID", inPrompt: true });
+    applyCliSample(G.CLI_SAMPLES.grok);
+  })();
+  </script>
+</body>
+</html>

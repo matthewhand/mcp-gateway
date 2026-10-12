@@ -1,0 +1,26 @@
+[Unit]
+Description=mcp-gateway server: %i (native mcp-openapi-proxy Streamable HTTP; MCP_GATEWAY_HTTP=supergateway escape hatch)
+After=network-online.target
+Wants=network-online.target
+# Bound restart storms; a bridge that cannot come up must not thrash forever.
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=chatgpt
+Group=chatgpt
+ExecStart=/home/chatgpt/mcp-gateway/bin/safe-log-run.py /home/chatgpt/.state/mcp-gateway/servers.log -- /home/chatgpt/mcp-gateway/bin/launch-server.sh %i
+# A wedged child tree must not block a restart indefinitely: cap the stop,
+# then let systemd escalate to SIGKILL. Mirrors mcp-cli-server@.service.
+TimeoutStartSec=120
+TimeoutStopSec=20
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-server@%i
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

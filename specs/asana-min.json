@@ -1,0 +1,26 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "Asana (curated core)", "version": "1.0"},
+  "servers": [{"url": "https://app.asana.com/api/1.0"}],
+  "paths": {
+    "/tasks": {
+      "get": {"summary": "List tasks (REQUIRES a scope: project, OR workspace+assignee)", "description": "Asana rejects an unscoped call. You MUST pass exactly one scope: `project=<gid>` (get one from GET /projects), OR `workspace=<gid>` together with `assignee=<gid>` (use assignee='me'). Calling with no params, or workspace alone, returns a 400 error.", "parameters": [
+        {"name": "workspace", "in": "query", "description": "Workspace gid. Only valid when combined with assignee.", "schema": {"type": "string"}},
+        {"name": "project", "in": "query", "description": "Project gid (from GET /projects). Simplest way to list tasks.", "schema": {"type": "string"}},
+        {"name": "assignee", "in": "query", "description": "Assignee gid or 'me'. Required if you scope by workspace.", "schema": {"type": "string"}},
+        {"name": "completed_since", "in": "query", "schema": {"type": "string"}},
+        {"name": "limit", "in": "query", "schema": {"type": "integer"}}], "responses": {"200": {"description": "ok"}}},
+      "post": {"summary": "Create a task", "responses": {"201": {"description": "created"}}}
+    },
+    "/tasks/{task_gid}": {
+      "get": {"summary": "Get a task", "parameters": [{"name": "task_gid", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}},
+      "put": {"summary": "Update a task", "parameters": [{"name": "task_gid", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}},
+      "delete": {"summary": "Delete a task", "parameters": [{"name": "task_gid", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}
+    },
+    "/tasks/{task_gid}/subtasks": {"get": {"summary": "List subtasks", "parameters": [{"name": "task_gid", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}},
+    "/tasks/{task_gid}/addProject": {"post": {"summary": "Add task to project", "parameters": [{"name": "task_gid", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}},
+    "/workspaces": {"get": {"summary": "List workspaces", "responses": {"200": {"description": "ok"}}}},
+    "/workspaces/{workspace_gid}/users": {"get": {"summary": "List users in a workspace", "parameters": [{"name": "workspace_gid", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}},
+    "/projects": {"get": {"summary": "List projects", "parameters": [{"name": "workspace", "in": "query", "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}}
+  }
+}

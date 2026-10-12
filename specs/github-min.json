@@ -1,0 +1,14 @@
+{
+  "openapi": "3.0.0",
+  "info": {"title": "GitHub (curated: PRs/commits/issues)", "version": "2.0"},
+  "servers": [{"url": "https://api.github.com"}],
+  "paths": {
+    "/user": {"get": {"summary": "Authenticated user", "responses": {"200": {"description": "ok"}}}},
+    "/user/repos": {"get": {"summary": "List your repos", "parameters": [{"name": "per_page", "in": "query", "schema": {"type": "integer"}}, {"name": "sort", "in": "query", "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}},
+    "/repos/{owner}/{repo}/pulls": {"get": {"summary": "List pull requests", "parameters": [{"name": "owner", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "repo", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "state", "in": "query", "schema": {"type": "string"}}, {"name": "per_page", "in": "query", "schema": {"type": "integer"}}], "responses": {"200": {"description": "ok"}}}},
+    "/repos/{owner}/{repo}/pulls/{pull_number}": {"get": {"summary": "Get a pull request", "parameters": [{"name": "owner", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "repo", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "pull_number", "in": "path", "required": true, "schema": {"type": "integer"}}], "responses": {"200": {"description": "ok"}}}},
+    "/repos/{owner}/{repo}/commits": {"get": {"summary": "List commits", "parameters": [{"name": "owner", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "repo", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "sha", "in": "query", "schema": {"type": "string"}}, {"name": "per_page", "in": "query", "schema": {"type": "integer"}}], "responses": {"200": {"description": "ok"}}}},
+    "/repos/{owner}/{repo}/commits/{ref}": {"get": {"summary": "Get a commit", "parameters": [{"name": "owner", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "repo", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "ref", "in": "path", "required": true, "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}},
+    "/repos/{owner}/{repo}/issues": {"get": {"summary": "List issues", "parameters": [{"name": "owner", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "repo", "in": "path", "required": true, "schema": {"type": "string"}}, {"name": "state", "in": "query", "schema": {"type": "string"}}], "responses": {"200": {"description": "ok"}}}}
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "command": ["/usr/local/bin/codex", "exec"],
+  "title": "Codex CLI",
+  "version": "0.142.3",
+  "parse_help": true,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "maps_to_flag": "cd",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory (passed as --cd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "cd", "model", "sandbox", "search", "ephemeral", "skip-git-repo-check"
+  ],
+  "overrides": {
+    "model": {
+      "description": "Model the agent should use"
+    },
+    "sandbox": {
+      "enum": ["read-only", "workspace-write", "danger-full-access"]
+    },
+    "search": {
+      "type": "boolean",
+      "description": "Enable live web search"
+    },
+    "ephemeral": {
+      "type": "boolean",
+      "description": "Run without persisting session files"
+    },
+    "skip-git-repo-check": {
+      "type": "boolean"
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn instructions (codex exec positional prompt)",
+      "required": true,
+      "positional": "input"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run Codex non-interactively",
+      "description": "Runs `codex exec` with prompt as positional input for single-turn non-interactive execution.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["model", "sandbox", "search", "ephemeral", "skip-git-repo-check"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Codex CLI version",
+      "argv": ["--version"]
+    }
+  ]
+}

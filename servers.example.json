@@ -1,0 +1,179 @@
+{
+  "flyio": {
+    "port": 8801,
+    "spec_url": "https://raw.githubusercontent.com/abhiaagarwal/peristera/refs/heads/main/fly-machines-gen/fixed_spec.json",
+    "env": {
+      "TOOL_WHITELIST": "/apps",
+      "API_KEY": "${FLYIO_API_KEY}"
+    }
+  },
+  "render": {
+    "port": 8802,
+    "spec_url": "https://api-docs.render.com/v1.0/openapi/render-public-api-1.json",
+    "env": {
+      "TOOL_WHITELIST": "/services",
+      "API_KEY": "${RENDER_API_KEY}"
+    }
+  },
+  "slack": {
+    "port": 8803,
+    "spec_url": "https://raw.githubusercontent.com/slackapi/slack-api-specs/master/web-api/slack_web_openapi_v2.json",
+    "env": {
+      "TOOL_WHITELIST": "/chat,/conversations",
+      "STRIP_PARAM": "token",
+      "TOOL_NAME_PREFIX": "slack_",
+      "API_KEY": "${SLACK_API_KEY}"
+    }
+  },
+  "getzep": {
+    "port": 8804,
+    "spec_url": "https://raw.githubusercontent.com/matthewhand/mcp-openapi-proxy/refs/heads/main/examples/getzep.swagger.json",
+    "env": {
+      "TOOL_WHITELIST": "/sessions",
+      "TOOL_NAME_PREFIX": "zep_",
+      "SERVER_URL_OVERRIDE": "http://localhost:8010/api/v2",
+      "API_KEY": "${GETZEP_API_KEY}",
+      "API_AUTH_TYPE": "Api-Key"
+    }
+  },
+  "virustotal": {
+    "port": 8805,
+    "spec_url": "https://raw.githubusercontent.com/matthewhand/mcp-openapi-proxy/refs/heads/main/examples/virustotal.openapi.yml",
+    "env": {
+      "OPENAPI_SPEC_FORMAT": "yaml",
+      "API_KEY": "${VIRUSTOTAL_API_KEY}",
+      "API_AUTH_TYPE": "api-key",
+      "API_AUTH_HEADER": "x-apikey"
+    }
+  },
+  "notion": {
+    "port": 8806,
+    "spec_url": "https://storage.googleapis.com/versori-assets/public-specs/20240214/NotionAPI.yml",
+    "env": {
+      "SERVER_URL_OVERRIDE": "https://api.notion.com",
+      "EXTRA_HEADERS": "Notion-Version: 2022-06-28",
+      "API_KEY": "${NOTION_API_KEY}"
+    }
+  },
+  "asana": {
+    "port": 8807,
+    "spec_url": "file:///home/chatgpt/mcp-gateway/specs/asana-min.json",
+    "env": {
+      "SERVER_URL_OVERRIDE": "https://app.asana.com/api/1.0",
+      "API_KEY": "${ASANA_API_KEY}"
+    }
+  },
+  "apisguru": {
+    "port": 8808,
+    "spec_url": "https://raw.githubusercontent.com/APIs-guru/openapi-directory/refs/heads/main/APIs/apis.guru/2.2.0/openapi.yaml",
+    "env": {}
+  },
+  "netbox": {
+    "port": 8809,
+    "spec_url": "file:///home/chatgpt/mcp-gateway/specs/netbox-min.yaml",
+    "env": {
+      "TOOL_WHITELIST": "/api/dcim/devices,/api/ipam/ip-addresses,/api/ipam/prefixes",
+      "API_KEY": "${NETBOX_API_KEY}",
+      "API_AUTH_TYPE": "Token",
+      "SERVER_URL_OVERRIDE": "http://localhost:8000",
+      "OPENAPI_SPEC_FORMAT": "yaml"
+    }
+  },
+  "box": {
+    "port": 8810,
+    "spec_url": "https://raw.githubusercontent.com/APIs-guru/openapi-directory/refs/heads/main/APIs/box.com/2.0.0/openapi.yaml",
+    "env": {
+      "TOOL_WHITELIST": "/files/{file_id}/content,/files/{file_id}/versions,/files/{file_id}/copy,/files/{file_id}/comments,/folders/{folder_id}/items,/folders/{folder_id}/copy",
+      "API_KEY": "${BOX_API_KEY}"
+    }
+  },
+  "wolframalpha": {
+    "port": 8811,
+    "spec_url": "https://raw.githubusercontent.com/APIs-guru/openapi-directory/refs/heads/main/APIs/wolframalpha.com/v0.1/openapi.yaml",
+    "env": {
+      "API_KEY": "${WOLFRAMALPHA_API_KEY}",
+      "API_AUTH_TYPE": "query",
+      "API_AUTH_PARAM": "appid"
+    }
+  },
+  "github": {
+    "port": 8812,
+    "spec_url": "file:///home/chatgpt/mcp-gateway/specs/github-min.json",
+    "env": {
+      "API_KEY": "${GITHUB_API_KEY}"
+    }
+  },
+  "netlify": {
+    "port": 8813,
+    "spec_url": "https://open-api.netlify.com/swagger.json",
+    "env": {
+      "OPENAPI_SPEC_FORMAT": "json",
+      "TOOL_WHITELIST": "/sites,/deploys/{deploy_id},/builds/{build_id}",
+      "API_KEY": "${NETLIFY_API_KEY}"
+    }
+  },
+  "gpt-terminal-plus": {
+    "port": 8815,
+    "spec_url": "${GPT_TERMINAL_PLUS_URL:-http://localhost:3100}/openapi.json",
+    "env": {
+      "TOOL_WHITELIST": "/command/execute-shell,/command/executors,/server/list,/server/set,/file/create,/file/read,/file/list,/file/update,/file/patch,/file/diff",
+      "API_KEY": "${TERMINAL_API_KEY}",
+      "API_AUTH_TYPE": "Bearer",
+      "SERVER_URL_OVERRIDE": "${GPT_TERMINAL_PLUS_URL:-http://localhost:3100}"
+    }
+  },
+  "openscad": {
+    "port": 8816,
+    "cli_port": 3860,
+    "cli_config": "configs/openscad.json",
+    "spec_url": "http://localhost:3860/openapi.json",
+    "env": {
+      "TOOL_WHITELIST": "/render,/files,/version,/run",
+      "TOOL_NAME_USE_OPERATION_ID": "true",
+      "CAPABILITIES_RESOURCES": "true",
+      "SERVER_URL_OVERRIDE": "http://localhost:3860"
+    }
+  },
+  "wordpress-dev": {
+    "port": 8817,
+    "enabled": false,
+    "spec_url": "file:///home/chatgpt/mcp-gateway/specs/wordpress-dev.json",
+    "env": {
+      "API_KEY": "${WP_DEV_API_KEY}",
+      "IGNORE_SSL_TOOLS": "true"
+    }
+  },
+  "gh-cli": {
+    "port": 8824,
+    "cli_port": 3868,
+    "cli_config": "configs/gh.json",
+    "spec_url": "http://localhost:3868/openapi.json",
+    "env": {
+      "TOOL_WHITELIST": "/issue,/pr,/repo,/api,/auth,/version,/run",
+      "TOOL_NAME_USE_OPERATION_ID": "true",
+      "SERVER_URL_OVERRIDE": "http://localhost:3868"
+    }
+  },
+  "oci-cli": {
+    "port": 8825,
+    "cli_port": 3869,
+    "cli_config": "configs/oci.json",
+    "spec_url": "http://localhost:3869/openapi.json",
+    "env": {
+      "TOOL_WHITELIST": "/iam,/compute,/network,/network-firewall,/db,/mysql,/nosql,/lb,/nlb,/os,/search,/version,/run",
+      "TOOL_NAME_USE_OPERATION_ID": "true",
+      "SERVER_URL_OVERRIDE": "http://localhost:3869"
+    }
+  },
+  "acpx-cli": {
+    "port": 8826,
+    "cli_port": 3870,
+    "cli_config": "configs/acpx.json",
+    "spec_url": "http://localhost:3870/openapi.json",
+    "env": {
+      "TOOL_WHITELIST": "/exec,/exec/qwen,/exec/opencode,/prompt,/sessions,/status,/cancel,/config,/version,/run",
+      "TOOL_NAME_USE_OPERATION_ID": "true",
+      "SERVER_URL_OVERRIDE": "http://localhost:3870"
+    }
+  }
+}

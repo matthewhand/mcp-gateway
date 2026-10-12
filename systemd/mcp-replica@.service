@@ -1,0 +1,27 @@
+[Unit]
+# Stateless mcp-openapi-proxy replica (issue #34). See bin/launch-replica.sh.
+Description=mcp-gateway stateless replica (port %i) for gpt-terminal-plus
+After=network-online.target gpt-terminal-plus.service
+Wants=network-online.target
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+EnvironmentFile=%h/mcp-gateway/.env
+EnvironmentFile=-%h/gpt-terminal-plus/.env
+Environment=PATH=/home/chatgpt/.local/bin:/usr/local/bin:/usr/bin:/bin
+ExecStart=/home/chatgpt/mcp-gateway/bin/safe-log-run.py %h/.state/mcp-gateway/servers.log -- /home/chatgpt/mcp-gateway/bin/launch-replica.sh %i gpt-terminal-plus
+Restart=always
+RestartSec=3
+TimeoutStartSec=120
+TimeoutStopSec=20
+KillMode=control-group
+MemoryHigh=640M
+MemoryMax=768M
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-replica@%i
+
+[Install]
+WantedBy=default.target

@@ -1,0 +1,61 @@
+{
+  "command": "/home/chatgpt/.local/bin/claude",
+  "title": "Claude CLI",
+  "version": "2.1.181",
+  "parse_help": true,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory (subprocess cwd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "print", "model", "effort", "output-format", "max-budget-usd", "permission-mode"
+  ],
+  "overrides": {
+    "model": {
+      "description": "Model for the session"
+    },
+    "effort": {
+      "enum": ["low", "medium", "high", "xhigh", "max"]
+    },
+    "output-format": {
+      "enum": ["text", "json", "stream-json"],
+      "description": "Output format (only with --print)"
+    },
+    "max-budget-usd": {
+      "description": "Maximum API spend in USD (print mode)"
+    },
+    "permission-mode": {
+      "enum": ["acceptEdits", "auto", "bypassPermissions", "default", "dontAsk", "plan"]
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn prompt (passed as claude -p / --print non-interactive mode)",
+      "required": true,
+      "maps_to_flag": "print"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run a single-turn Claude prompt",
+      "description": "Mandatory -p/--print runs non-interactive mode and prints the response.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["model", "effort", "output-format", "max-budget-usd", "permission-mode"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Claude CLI version",
+      "argv": ["--version"]
+    }
+  ]
+}

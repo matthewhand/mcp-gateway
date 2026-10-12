@@ -1,0 +1,61 @@
+{
+  "command": "/usr/bin/git",
+  "title": "Git",
+  "version": "2.x",
+  "parse_help": false,
+  "timeout_sec": 60,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Repository root (subprocess cwd; git uses -C implicitly via cwd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [],
+  "body_params": {},
+  "operations": [
+    {
+      "id": "status",
+      "path": "/status",
+      "method": "post",
+      "summary": "git status --porcelain",
+      "argv": ["status", "--porcelain", "-b"]
+    },
+    {
+      "id": "log",
+      "path": "/log",
+      "method": "post",
+      "summary": "git log (oneline)",
+      "argv": ["log", "--oneline", "-n", "20"]
+    },
+    {
+      "id": "diff",
+      "path": "/diff",
+      "method": "post",
+      "summary": "git diff (unstaged)",
+      "argv": ["diff"]
+    },
+    {
+      "id": "diff_staged",
+      "path": "/diff-staged",
+      "method": "post",
+      "summary": "git diff --cached",
+      "argv": ["diff", "--cached"]
+    },
+    {
+      "id": "branch",
+      "path": "/branch",
+      "method": "post",
+      "summary": "git branch -vv",
+      "argv": ["branch", "-vv"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "git version",
+      "argv": ["--version"]
+    }
+  ]
+}

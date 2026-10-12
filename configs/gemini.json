@@ -1,0 +1,61 @@
+{
+  "command": "/usr/local/bin/gemini",
+  "title": "Gemini CLI",
+  "version": "0.37.1",
+  "parse_help": false,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory (subprocess cwd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "prompt", "model", "output-format", "sandbox", "yolo", "approval-mode"
+  ],
+  "overrides": {
+    "model": {
+      "description": "Model ID"
+    },
+    "output-format": {
+      "enum": ["text", "json", "stream-json"],
+      "description": "CLI output format in headless mode"
+    },
+    "approval-mode": {
+      "enum": ["default", "auto_edit", "yolo", "plan"]
+    },
+    "sandbox": {
+      "type": "boolean"
+    },
+    "yolo": {
+      "type": "boolean"
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn prompt (passed as gemini -p / --prompt headless mode)",
+      "required": true,
+      "maps_to_flag": "prompt"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run a single-turn Gemini prompt",
+      "description": "Mandatory -p/--prompt runs non-interactive (headless) mode.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["model", "output-format", "sandbox", "yolo", "approval-mode"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Gemini CLI version",
+      "argv": ["-v"]
+    }
+  ]
+}

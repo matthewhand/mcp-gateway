@@ -1,0 +1,52 @@
+{
+  "command": "/usr/bin/your-cli",
+  "title": "Example CLI",
+  "parse_help": true,
+  "working_directory": {
+    "mode": "fixed",
+    "path": "/tmp/your-cli-mcp",
+    "mkdir": true
+  },
+  "reject_unknown_params": true,
+  "sandbox_outputs": true,
+  "whitelist": ["format", "verbose"],
+  "overrides": {
+    "format": {
+      "enum": ["json", "text", "yaml"]
+    },
+    "verbose": {"type": "boolean"}
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Mandatory input mapped to a CLI flag (see maps_to_flag)",
+      "required": true,
+      "maps_to_flag": "message"
+    },
+    "input_file": {
+      "description": "Or: file contents written to a sandbox temp path",
+      "write_temp": true,
+      "suffix": ".txt",
+      "positional": "input"
+    }
+  },
+  "operations": [
+    {
+      "id": "run",
+      "path": "/run",
+      "method": "post",
+      "summary": "Run with mandatory prompt flag + optional whitelisted flags",
+      "include_flags": ["format", "verbose"],
+      "include_body_params": ["prompt"],
+      "fixed_flags": {
+        "quiet": true
+      }
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "CLI version",
+      "argv": ["--version"]
+    }
+  ]
+}

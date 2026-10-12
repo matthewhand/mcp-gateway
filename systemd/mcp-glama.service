@@ -1,0 +1,19 @@
+[Unit]
+Description=mcp-gateway: glama server (native mcp-openapi-proxy Streamable HTTP; MCP_GATEWAY_HTTP=supergateway escape hatch) for Letta Cloud + Grok
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chatgpt
+Group=chatgpt
+ExecStart=/home/chatgpt/mcp-gateway/bin/safe-log-run.py /home/chatgpt/.state/mcp-gateway/glama.log -- /home/chatgpt/mcp-gateway/bin/launch-glama.sh
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-glama
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

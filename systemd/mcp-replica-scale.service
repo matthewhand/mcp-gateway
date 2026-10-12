@@ -1,0 +1,21 @@
+[Unit]
+# Resource-guarded horizontal autoscaler for stateless mcp-openapi-proxy replicas.
+# Adds a replica only when CPU/mem/disk guards + exponential backoff allow it.
+Description=mcp-gateway replica autoscaler tick (gpt-terminal-plus)
+After=network-online.target
+
+[Service]
+Type=oneshot
+EnvironmentFile=-%h/mcp-gateway/.env
+ExecStart=/home/chatgpt/mcp-gateway/bin/scale-replicas.sh timer
+# These knobs are read by scale-replicas.sh; set here for the timer context.
+Environment=MAX_REPLICAS=4
+Environment=MIN_REPLICAS=2
+Environment=LOAD_PER_CORE=1.0
+Environment=SCALE_MARGIN=0.5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-replica-scale
+
+[Install]
+WantedBy=default.target

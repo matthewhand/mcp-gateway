@@ -1,0 +1,17 @@
+# mcp-gateway service logs (systemd StandardOutput=append:...)
+# copytruncate is required: processes hold open FDs on these files, so rename-only
+# rotation would leave writers filling the old inode under a .1 name.
+/home/chatgpt/.state/mcp-gateway/*.log {
+    daily
+    rotate 7
+    maxsize 50M
+    missingok
+    notifempty
+    compress
+    delaycompress
+    copytruncate
+    dateext
+    dateformat -%Y%m%d
+    su chatgpt chatgpt
+    create 0644 chatgpt chatgpt
+}

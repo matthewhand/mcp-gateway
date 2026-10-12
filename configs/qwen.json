@@ -1,0 +1,61 @@
+{
+  "command": "/usr/local/bin/qwen",
+  "title": "Qwen CLI",
+  "version": "0.19.3",
+  "parse_help": false,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory (subprocess cwd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "prompt", "model", "output-format", "sandbox", "yolo", "approval-mode"
+  ],
+  "overrides": {
+    "model": {
+      "description": "Model ID"
+    },
+    "output-format": {
+      "enum": ["text", "json", "stream-json"],
+      "description": "CLI output format"
+    },
+    "approval-mode": {
+      "enum": ["plan", "default", "auto-edit", "auto", "yolo"]
+    },
+    "sandbox": {
+      "type": "boolean"
+    },
+    "yolo": {
+      "type": "boolean"
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn prompt (passed as qwen -p / --prompt non-interactive mode)",
+      "required": true,
+      "maps_to_flag": "prompt"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run a single-turn Qwen prompt",
+      "description": "Mandatory -p/--prompt runs non-interactive mode.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["model", "output-format", "sandbox", "yolo", "approval-mode"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Qwen CLI version",
+      "argv": ["--version"]
+    }
+  ]
+}

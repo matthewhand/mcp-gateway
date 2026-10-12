@@ -1,0 +1,349 @@
+# Round-robin pool of stateless mcp-openapi-proxy instances for gpt-terminal-plus.
+# The proxy is stateless (no Mcp-Session-Id, no sticky routing) so any instance
+# can serve any request; a pool removes the single-worker bottleneck (issue #34).
+# Replicas are managed by systemd (mcp-replica@<port>.service); nginx balances
+# them and ejects any that fail via max_fails/fail_timeout.
+upstream gpt_terminal_plus {
+    least_conn;
+    server 127.0.0.1:8815 max_fails=2 fail_timeout=15s;
+    server 127.0.0.1:8915 max_fails=2 fail_timeout=15s;
+    server 127.0.0.1:8916 max_fails=2 fail_timeout=15s;
+    server 127.0.0.1:8917 max_fails=2 fail_timeout=15s;
+    keepalive 16;
+}
+
+server {
+    server_name mcp.example.com glama-bridge.example.com;
+
+    # Dedicated access log so fail2ban (mcp-gateway-auth jail) can target
+    # ONLY this vhost's 401s without false-positives from other sites.
+    access_log /var/log/nginx/glama-bridge.access.log;
+
+    # --- Route 1: Letta Cloud — static bearer header (upstream :8765) ---
+    location /mcp {
+        # CORS preflight: answer BEFORE auth (browsers omit Authorization on OPTIONS)
+        if ($request_method = OPTIONS) {
+            add_header Access-Control-Allow-Origin $http_origin always;
+            add_header Access-Control-Allow-Methods "GET, POST, DELETE, OPTIONS" always;
+            add_header Access-Control-Allow-Headers "authorization, content-type, mcp-session-id, mcp-protocol-version, last-event-id" always;
+            add_header Access-Control-Max-Age 86400 always;
+            add_header Content-Length 0;
+            return 204;
+        }
+        if ($http_authorization != "Bearer <BEARER_TOKEN>") { return 401; }
+        add_header Access-Control-Allow-Origin $http_origin always;
+        add_header Access-Control-Expose-Headers "mcp-session-id" always;
+        proxy_pass http://127.0.0.1:8765;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+
+    # --- Route 2: capability URL (secret in path, no auth header; upstream :8765) ---
+    location /grok/<GROK_PATH_SECRET> {
+        rewrite ^/grok/<GROK_PATH_SECRET>(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8765;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+
+    # --- Route 3: OAuth2 (glama-oauth.service on :8780) ---
+    location = /oauth/authorize {
+        proxy_pass http://127.0.0.1:8780/authorize;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    location = /oauth/token {
+        proxy_pass http://127.0.0.1:8780/token;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    # RFC 7591 DCR. Live host nginx/mcp.conf (gitignored) needs the same
+    # exact-match location on deploy — discovery advertises {issuer}/oauth/register.
+    location = /oauth/register {
+        proxy_pass http://127.0.0.1:8780/register;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    }
+    location = /.well-known/oauth-authorization-server {
+        proxy_pass http://127.0.0.1:8780/.well-known/oauth-authorization-server;
+        proxy_set_header Host $host;
+    }
+    # RFC 9728 Protected Resource Metadata (path-scoped).
+    # Suffix after the well-known prefix is the resource path so Gemini Spark
+    # can bind tools/list vs tools/call to the URL it dialed. resource must
+    # equal https://$host + suffix. Do not put this behind auth_request.
+    location ^~ /.well-known/oauth-protected-resource {
+        default_type application/json;
+        add_header Cache-Control "public, max-age=300" always;
+        set $prm_suffix "";
+        if ($request_uri ~ "^/.well-known/oauth-protected-resource(.*)$") {
+            set $prm_suffix $1;
+        }
+        return 200 '{"resource":"https://$host$prm_suffix","authorization_servers":["https://$host"],"scopes_supported":["mcp"],"bearer_methods_supported":["header"]}';
+    }
+    # OAuth-gated glama MCP (upstream :8765)
+    location /oauth/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8765;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location = /oauth-validate {
+        internal;
+        proxy_pass http://127.0.0.1:8780/validate;
+        proxy_pass_request_body off;
+        proxy_set_header Content-Length "";
+        proxy_set_header Authorization $http_authorization;
+        proxy_set_header X-Original-URI $request_uri;
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+    # auth_request 401s otherwise become nginx HTML + a bare Bearer header.
+    # Named location returns Notion-shaped JSON + path-scoped resource_metadata
+    # so Spark can fetch PRM for the URL it actually called. Discovery parity
+    # only — grok path-secret, /mcp bearer, DCR, and CIMD stay as-is.
+    # Live nginx/mcp.conf (gitignored) needs the same named location +
+    # `error_page 401 = @mcp_oauth_401` on every OAuth MCP location.
+    location @mcp_oauth_401 {
+        default_type application/json;
+        add_header WWW-Authenticate 'Bearer realm="OAuth", resource_metadata="https://$host/.well-known/oauth-protected-resource$request_uri", error="invalid_token"' always;
+        add_header Cache-Control "no-store" always;
+        return 401 '{"error":"invalid_token"}';
+    }
+
+    # --- Route 4: OAuth-gated SANDBOX EXAMPLES (spec-only; one native mcp-openapi-proxy each; MCP_GATEWAY_HTTP=supergateway escape hatch) ---
+    location /oauth/ex/flyio/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/flyio/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8801;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/render/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/render/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8802;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/slack/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/slack/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8803;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/getzep/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/getzep/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8804;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/virustotal/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/virustotal/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8805;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/notion/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/notion/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8806;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/asana/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/asana/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8807;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/apisguru/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/apisguru/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8808;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/netbox/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/netbox/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8809;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/box/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/box/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8810;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/wolframalpha/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/wolframalpha/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8811;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+
+    location /oauth/ex/github/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/github/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8812;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/netlify/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/netlify/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8813;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    # CLI sandbox static files — proxy_pass to matching cli_bridge port (/sandbox/ on bridge)
+    location /sandbox/openscad/ {
+        proxy_pass http://127.0.0.1:3860/sandbox/;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering on;
+        add_header Cache-Control "public, max-age=300" always;
+    }
+    # Status WebUI — htpasswd ONLY on these pages (MCP/OAuth routes stay as-is).
+    location = / {
+        auth_basic "mcp-gateway status";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        proxy_pass http://127.0.0.1:8781/;
+        proxy_set_header Host $host;
+        proxy_set_header Authorization "";
+        add_header Cache-Control "no-store" always;
+    }
+    location = /status {
+        auth_basic "mcp-gateway status";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        proxy_pass http://127.0.0.1:8781/status;
+        proxy_set_header Host $host;
+        proxy_set_header Authorization "";
+        add_header Cache-Control "no-store" always;
+    }
+    location = /status.json {
+        auth_basic "mcp-gateway status";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        proxy_pass http://127.0.0.1:8781/status.json;
+        proxy_set_header Host $host;
+        proxy_set_header Authorization "";
+        add_header Cache-Control "no-store" always;
+    }
+    location = /status.html {
+        auth_basic "mcp-gateway status";
+        auth_basic_user_file /etc/nginx/.htpasswd;
+        proxy_pass http://127.0.0.1:8781/status.html;
+        proxy_set_header Host $host;
+        proxy_set_header Authorization "";
+        add_header Cache-Control "no-store" always;
+    }
+    location /oauth/ex/oci-cli/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/oci-cli/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8825;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location /oauth/ex/acpx-cli/mcp {
+        auth_request /oauth-validate;
+        error_page 401 = @mcp_oauth_401;
+        rewrite ^/oauth/ex/acpx-cli/mcp(/.*)?$ /mcp break;
+        proxy_pass http://127.0.0.1:8826;
+        proxy_http_version 1.1;
+        proxy_set_header Host $host;
+        proxy_set_header Connection '';
+        proxy_buffering off;
+        proxy_read_timeout 3600s;
+    }
+    location / { return 404; }
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/mcp/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/mcp/privkey.pem;
+    include /etc/letsencrypt/options-ssl-nginx.conf;
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem;
+}
+server {
+    return 301 https://$host$request_uri;
+    server_name glama-bridge.example.com;
+    listen 80;
+    return 404;
+}

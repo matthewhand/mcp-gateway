@@ -1,0 +1,146 @@
+{
+  "command": ["/usr/bin/xvfb-run", "-a", "/usr/bin/openscad"],
+  "title": "OpenSCAD",
+  "version": "2021.01",
+  "parse_help": true,
+  "timeout_sec": 120,
+  "working_directory": {
+    "mode": "fixed",
+    "path": "~/.openscad",
+    "mkdir": true,
+    "description": "Server-side sandbox only; callers cannot override this path"
+  },
+  "reject_unknown_params": true,
+  "sandbox_outputs": true,
+  "inline_binary_outputs": true,
+  "sandbox_files": {
+    "allowed_suffixes": [".scad", ".stl", ".png", ".svg", ".pdf", ".off", ".amf", ".3mf", ".dxf"],
+    "upload_suffixes": [".scad"],
+    "max_bytes": 2000000,
+    "resource_dirs": [".", "previews", "renders", "exports"],
+    "list_recursive": true,
+    "public_slug": "openscad"
+  },
+  "whitelist": [
+    "D", "imgsize", "render", "preview",
+    "colorscheme", "camera", "autocenter", "viewall", "projection"
+  ],
+  "overrides": {
+    "D": {
+      "name": "define",
+      "type": "array",
+      "description": "Pre-define SCAD variables as var=val (repeatable)"
+    },
+    "colorscheme": {
+      "enum": ["Cornfield", "Metallic", "Sunset", "Starnight", "BeforeDawn", "Nature", "DeepOcean", "Solarized", "Tomorrow", "Tomorrow Night", "Monotone"]
+    },
+    "projection": {
+      "enum": ["ortho", "perspective"]
+    },
+    "render": {"type": "boolean"},
+    "preview": {"type": "boolean"},
+    "autocenter": {"type": "boolean"},
+    "viewall": {"type": "boolean"},
+    "imgsize": {
+      "description": "PNG export size as width,height (e.g. 800,600)"
+    },
+    "camera": {
+      "description": "Camera for PNG export: translate_x,y,z,rot_x,y,z,dist or eye_x,y,z,center_x,y,z"
+    }
+  },
+  "body_params": {
+    "scad": {
+      "description": "Inline SCAD source (one-shot). For multi-file designs, upload SCAD first and pass `filename` instead.",
+      "write_temp": true,
+      "suffix": ".scad",
+      "positional": "input"
+    },
+    "output_name": {
+      "description": "Optional sandbox output path (e.g. bracket.png, previews/bracket.png, renders/job1.stl). Defaults to <input-stem>.<ext> at sandbox root. Subfolders must be under resource_dirs (previews, renders, exports)."
+    },
+    "return_inline": {
+      "type": "boolean",
+      "default": true,
+      "description": "Default true for PNG: embed ImageContent (base64) AND save to ~/.openscad with a ResourceLink/public URL. Set false for URL/resource_link only (no base64). For STL, operation default is false (mesh files can be large)."
+    }
+  },
+  "operations": [
+    {
+      "id": "render_png",
+      "path": "/render/png",
+      "method": "post",
+      "summary": "Preview SCAD as PNG (MCP chat image)",
+      "description": "Visual preview for MCP clients. Default: embeds ImageContent (base64 PNG) AND saves to ~/.openscad with a ResourceLink + public HTTPS preview URL (MCP_PUBLIC_URL/sandbox/openscad/…). Set return_inline=false for URL/resource_link only (no base64). Use for SEEING the design; call render_stl for printable meshes. Provide `scad` OR sandbox `filename` (from upload_file). Typical flags: imgsize (e.g. 800,600), render=true, autocenter=true, viewall=true.",
+      "input_one_of": ["scad", "filename"],
+      "include_flags": ["D", "imgsize", "render", "preview", "colorscheme", "camera", "autocenter", "viewall", "projection"],
+      "include_body_params": ["output_name", "return_inline"],
+      "return_inline_default": true,
+      "persist_output": true,
+      "auto_output": true,
+      "output_format": {
+        "param": "output_format",
+        "default": "png",
+        "expose": false,
+        "enum": ["png"]
+      }
+    },
+    {
+      "id": "render_stl",
+      "path": "/render/stl",
+      "method": "post",
+      "summary": "Export SCAD as STL mesh (3D printing / CAD)",
+      "description": "Printable mesh export. Default (return_inline=false): saves <stem>.stl to ~/.openscad and returns filename + sandbox_uri / ResourceLink — client fetches via resources/read or download_file. Set return_inline=true to also embed the STL blob. Use for 3D model files; call render_png for chat previews. Provide `scad` OR sandbox `filename`. Re-use the same uploaded SCAD `filename` to render both PNG and STL.",
+      "input_one_of": ["scad", "filename"],
+      "include_flags": ["D"],
+      "include_body_params": ["output_name", "return_inline"],
+      "return_inline_default": false,
+      "persist_output": true,
+      "auto_output": true,
+      "output_format": {
+        "param": "output_format",
+        "default": "stl",
+        "expose": false,
+        "enum": ["stl", "asciistl", "binstl"]
+      }
+    },
+    {
+      "id": "upload_file",
+      "type": "upload_file",
+      "path": "/files",
+      "method": "post",
+      "summary": "Upload SCAD to the shared sandbox",
+      "description": "Store a .scad file under ~/.openscad so render_png and render_stl can both reference it via `filename` (include/use chains, shortcut workflows)."
+    },
+    {
+      "id": "download_file",
+      "type": "download_file",
+      "path": "/files/{filepath}",
+      "method": "get",
+      "path_params": ["filepath"],
+      "summary": "Download a sandbox file (PNG, STL, SCAD, …)",
+      "description": "Fetch a persisted artifact by sandbox-relative path (e.g. bracket.png or previews/bracket.png) without re-rendering."
+    },
+    {
+      "id": "list_files",
+      "type": "list_files",
+      "path": "/files",
+      "method": "get",
+      "summary": "List sandbox SCAD sources and rendered outputs"
+    },
+    {
+      "id": "delete_file",
+      "type": "delete_file",
+      "path": "/files/{filepath}",
+      "method": "delete",
+      "path_params": ["filepath"],
+      "summary": "Delete a sandbox file"
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get OpenSCAD version",
+      "argv": ["--version"]
+    }
+  ]
+}

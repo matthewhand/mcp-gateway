@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+# safe-probe <name> — deadlock-safe loopback /healthz (see bin/safe_probe.py).
+set -euo pipefail
+HERE="$(cd "$(dirname "$0")" && pwd)"
+exec python3 "$HERE/safe_probe.py" "$@"

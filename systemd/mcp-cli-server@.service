@@ -1,0 +1,29 @@
+[Unit]
+Description=mcp-gateway CLI server: %i (cli_bridge + patched mcp-openapi-proxy)
+After=network-online.target
+Wants=network-online.target
+# Prefer a single owner: user unit mcp-cli-server@%i + linger.
+# Installing this template as a *system* unit is fine; leave instances
+# disabled wherever a user unit is intended. Dual active/enabled user+system
+# copies fight for the same bridge/MCP ports (e.g. acpx-cli :3870 / :8826).
+# validate.sh / status.sh warn on overlap (look-only; never start/stop here).
+StartLimitIntervalSec=120
+StartLimitBurst=5
+
+[Service]
+Type=simple
+User=chatgpt
+Group=chatgpt
+KillMode=control-group
+TimeoutStartSec=120
+TimeoutStopSec=20
+ExecStartPre=/home/chatgpt/mcp-gateway/bin/prepare-cli-server.sh %i
+ExecStart=/home/chatgpt/mcp-gateway/bin/safe-log-run.py /home/chatgpt/.state/mcp-gateway/servers.log -- /home/chatgpt/mcp-gateway/bin/launch-cli-server.sh %i
+Restart=always
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-cli-server@%i
+
+[Install]
+WantedBy=multi-user.target

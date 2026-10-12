@@ -1,0 +1,24 @@
+[Unit]
+Description=mcp-gateway OAuth2 authorization server (Grok connector)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chatgpt
+Group=chatgpt
+Environment=GLAMA_OAUTH_CONF=/home/chatgpt/.config/mcp-gateway/oauth.conf
+# DCR client store (public PKCE clients; no secrets). Override with MCP_OAUTH_CLIENTS.
+# Default path used by oauth-server.py: ~/.state/mcp-gateway/oauth-clients.json
+# safe-log-run: file logs never kill the process on ENOSPC (disk full).
+# Wrapper messages go to the journal; child stdout/stderr go to oauth.log.
+ExecStart=/home/chatgpt/mcp-gateway/bin/safe-log-run.py /home/chatgpt/.state/mcp-gateway/oauth.log -- /usr/bin/python3 /home/chatgpt/mcp-gateway/bin/oauth-server.py
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-oauth
+KillMode=control-group
+
+[Install]
+WantedBy=multi-user.target

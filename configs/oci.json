@@ -1,0 +1,602 @@
+{
+  "command": [
+    "/usr/bin/env",
+    "SUPPRESS_LABEL_WARNING=True",
+    "OCI_CLI_SUPPRESS_FILE_PERMISSIONS_WARNING=True",
+    "/home/chatgpt/.local/bin/oci"
+  ],
+  "title": "Oracle Cloud Infrastructure CLI",
+  "version": "3.89.1",
+  "parse_help": false,
+  "timeout_sec": 180,
+  "reject_unknown_params": true,
+  "sandbox_outputs": false,
+  "whitelist": [
+    "compartment-id",
+    "instance-id",
+    "vcn-id",
+    "nsg-id",
+    "subnet-id",
+    "network-firewall-id",
+    "network-firewall-policy-id",
+    "autonomous-database-id",
+    "db-system-id",
+    "namespace-name",
+    "name",
+    "region",
+    "profile",
+    "output",
+    "limit",
+    "page",
+    "all",
+    "display-name",
+    "lifecycle-state",
+    "availability-domain",
+    "query",
+    "auth",
+    "compartment-id-in-subtree",
+    "access-level",
+    "scope"
+  ],
+  "overrides": {
+    "compartment-id": {
+      "description": "Compartment OCID (tenancy OCID works for root). Required for most list/get calls."
+    },
+    "instance-id": {
+      "description": "Compute instance OCID"
+    },
+    "vcn-id": {
+      "description": "VCN OCID (filter for subnets, NSGs, etc.)"
+    },
+    "nsg-id": {
+      "description": "Network Security Group OCID"
+    },
+    "subnet-id": {
+      "description": "Subnet OCID"
+    },
+    "network-firewall-id": {
+      "description": "OCI Network Firewall OCID"
+    },
+    "network-firewall-policy-id": {
+      "description": "Network Firewall policy OCID"
+    },
+    "autonomous-database-id": {
+      "description": "Autonomous Database OCID"
+    },
+    "db-system-id": {
+      "description": "DB system OCID (Bare Metal / VM / Exadata)"
+    },
+    "namespace-name": {
+      "description": "Object Storage namespace"
+    },
+    "name": {
+      "description": "Bucket or resource name"
+    },
+    "region": {
+      "description": "Region override (default from ~/.oci/config, e.g. ap-sydney-1)"
+    },
+    "profile": {
+      "description": "OCI config profile (default DEFAULT)"
+    },
+    "output": {
+      "enum": ["json", "table", "text"],
+      "description": "CLI output format"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Max results per page"
+    },
+    "page": {
+      "description": "Pagination token"
+    },
+    "all": {
+      "type": "boolean",
+      "description": "Fetch all pages"
+    },
+    "display-name": {
+      "description": "Filter by display name"
+    },
+    "lifecycle-state": {
+      "description": "Filter by lifecycle state (e.g. RUNNING, AVAILABLE, TERMINATED)"
+    },
+    "availability-domain": {
+      "description": "Availability domain name"
+    },
+    "query": {
+      "description": "JMESPath query to filter/reshape output (oci --query)"
+    },
+    "auth": {
+      "enum": ["api_key", "instance_principal", "resource_principal", "security_token", "instance_obo_user"],
+      "description": "Auth type override"
+    },
+    "compartment-id-in-subtree": {
+      "type": "boolean",
+      "description": "Include subcompartments when listing"
+    },
+    "access-level": {
+      "enum": ["ANY", "ACCESSIBLE"],
+      "description": "Compartment list access level"
+    },
+    "scope": {
+      "enum": ["REGION", "AVAILABILITY_DOMAIN"],
+      "description": "Scope for public-ip list (REGION or AVAILABILITY_DOMAIN)"
+    }
+  },
+  "body_params": {
+    "compartment_id": {
+      "description": "Compartment OCID (maps to --compartment-id). Tenancy OCID is valid for root.",
+      "maps_to_flag": "compartment-id"
+    },
+    "instance_id": {
+      "description": "Instance OCID",
+      "maps_to_flag": "instance-id"
+    },
+    "vcn_id": {
+      "description": "VCN OCID",
+      "maps_to_flag": "vcn-id"
+    },
+    "nsg_id": {
+      "description": "Network Security Group OCID",
+      "maps_to_flag": "nsg-id"
+    },
+    "subnet_id": {
+      "description": "Subnet OCID",
+      "maps_to_flag": "subnet-id"
+    },
+    "network_firewall_id": {
+      "description": "Network Firewall OCID",
+      "maps_to_flag": "network-firewall-id"
+    },
+    "network_firewall_policy_id": {
+      "description": "Network Firewall policy OCID",
+      "maps_to_flag": "network-firewall-policy-id"
+    },
+    "autonomous_database_id": {
+      "description": "Autonomous Database OCID",
+      "maps_to_flag": "autonomous-database-id"
+    },
+    "db_system_id": {
+      "description": "DB system OCID",
+      "maps_to_flag": "db-system-id"
+    },
+    "namespace_name": {
+      "description": "Object Storage namespace",
+      "maps_to_flag": "namespace-name"
+    },
+    "name": {
+      "description": "Bucket or resource name",
+      "maps_to_flag": "name"
+    },
+    "region": {
+      "description": "Region override",
+      "maps_to_flag": "region"
+    },
+    "profile": {
+      "description": "Config profile",
+      "maps_to_flag": "profile"
+    },
+    "output": {
+      "description": "json|table|text",
+      "maps_to_flag": "output"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Max items per page",
+      "maps_to_flag": "limit"
+    },
+    "page": {
+      "description": "Pagination token",
+      "maps_to_flag": "page"
+    },
+    "all": {
+      "type": "boolean",
+      "description": "Fetch all pages",
+      "maps_to_flag": "all"
+    },
+    "display_name": {
+      "description": "Filter by display name",
+      "maps_to_flag": "display-name"
+    },
+    "lifecycle_state": {
+      "description": "Filter by lifecycle state",
+      "maps_to_flag": "lifecycle-state"
+    },
+    "availability_domain": {
+      "description": "Availability domain",
+      "maps_to_flag": "availability-domain"
+    },
+    "query": {
+      "description": "JMESPath --query expression",
+      "maps_to_flag": "query"
+    },
+    "scope": {
+      "description": "REGION or AVAILABILITY_DOMAIN (public-ip list)",
+      "maps_to_flag": "scope"
+    },
+    "text": {
+      "description": "Free-text search string for resource search",
+      "required": true,
+      "cli_flag": "text"
+    },
+    "matching_context_type": {
+      "description": "Search matching context type (NONE, HIGHLIGHTS)",
+      "cli_flag": "matching-context-type"
+    }
+  },
+  "operations": [
+    {
+      "id": "region_list",
+      "path": "/iam/region/list",
+      "method": "post",
+      "summary": "List OCI regions",
+      "description": "Runs `oci iam region list`. Uses ~/.oci/config for auth (DEFAULT profile, ap-sydney-1 on this host).",
+      "argv": ["iam", "region", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": ["profile", "region", "auth", "query"],
+      "include_body_params": ["profile", "region", "query"]
+    },
+    {
+      "id": "compartment_list",
+      "path": "/iam/compartment/list",
+      "method": "post",
+      "summary": "List compartments",
+      "description": "Runs `oci iam compartment list`. Pass compartment_id (often tenancy OCID) and optionally compartment-id-in-subtree.",
+      "argv": ["iam", "compartment", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "compartment-id-in-subtree", "access-level",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "instance_list",
+      "path": "/compute/instance/list",
+      "method": "post",
+      "summary": "List compute instances",
+      "description": "Runs `oci compute instance list`. Requires compartment_id. Prefer all=true or a JMESPath query for readable fields.",
+      "argv": ["compute", "instance", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state", "availability-domain",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state", "availability_domain",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "instance_get",
+      "path": "/compute/instance/get",
+      "method": "post",
+      "summary": "Get compute instance",
+      "description": "Runs `oci compute instance get --instance-id …`.",
+      "argv": ["compute", "instance", "get"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": ["instance-id", "profile", "region", "auth", "query"],
+      "include_body_params": ["instance_id", "profile", "region", "query"]
+    },
+    {
+      "id": "vcn_list",
+      "path": "/network/vcn/list",
+      "method": "post",
+      "summary": "List VCNs",
+      "description": "Runs `oci network vcn list`. Requires compartment_id.",
+      "argv": ["network", "vcn", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "subnet_list",
+      "path": "/network/subnet/list",
+      "method": "post",
+      "summary": "List subnets",
+      "description": "Runs `oci network subnet list`. Requires compartment_id; optional vcn_id filter.",
+      "argv": ["network", "subnet", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "vcn-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "vcn_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "security_list_list",
+      "path": "/network/security-list/list",
+      "method": "post",
+      "summary": "List security lists (VCN firewall rules)",
+      "description": "Runs `oci network security-list list`. Classic VCN firewall rulesets. Requires compartment_id; optional vcn_id.",
+      "argv": ["network", "security-list", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "vcn-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "vcn_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "nsg_list",
+      "path": "/network/nsg/list",
+      "method": "post",
+      "summary": "List network security groups",
+      "description": "Runs `oci network nsg list`. NSGs are the modern VNIC firewall grouping. Requires compartment_id; optional vcn_id.",
+      "argv": ["network", "nsg", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "vcn-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "vcn_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "internet_gateway_list",
+      "path": "/network/internet-gateway/list",
+      "method": "post",
+      "summary": "List internet gateways",
+      "description": "Runs `oci network internet-gateway list`. Requires compartment_id; optional vcn_id.",
+      "argv": ["network", "internet-gateway", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "vcn-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "vcn_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "nat_gateway_list",
+      "path": "/network/nat-gateway/list",
+      "method": "post",
+      "summary": "List NAT gateways",
+      "description": "Runs `oci network nat-gateway list`. Requires compartment_id; optional vcn_id.",
+      "argv": ["network", "nat-gateway", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "vcn-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "vcn_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "drg_list",
+      "path": "/network/drg/list",
+      "method": "post",
+      "summary": "List dynamic routing gateways (DRGs)",
+      "description": "Runs `oci network drg list`. Requires compartment_id.",
+      "argv": ["network", "drg", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "public_ip_list",
+      "path": "/network/public-ip/list",
+      "method": "post",
+      "summary": "List public IPs",
+      "description": "Runs `oci network public-ip list`. Requires compartment_id and scope (default REGION via fixed_flags).",
+      "argv": ["network", "public-ip", "list"],
+      "fixed_flags": { "output": "json", "scope": "REGION" },
+      "include_flags": [
+        "compartment-id", "scope", "availability-domain", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "scope", "availability_domain", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "network_firewall_list",
+      "path": "/network-firewall/list",
+      "method": "post",
+      "summary": "List OCI Network Firewalls",
+      "description": "Runs `oci network-firewall network-firewall list`. Managed firewall appliances (distinct from VCN security lists / NSGs).",
+      "argv": ["network-firewall", "network-firewall", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state", "availability-domain",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state", "availability_domain",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "network_firewall_policy_list",
+      "path": "/network-firewall/policy/list",
+      "method": "post",
+      "summary": "List Network Firewall policies",
+      "description": "Runs `oci network-firewall network-firewall-policy list`.",
+      "argv": ["network-firewall", "network-firewall-policy", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "db_system_list",
+      "path": "/db/system/list",
+      "method": "post",
+      "summary": "List DB systems (Oracle DB BM/VM/Exadata)",
+      "description": "Runs `oci db system list`. Classic/VM/Exadata database systems. Requires compartment_id.",
+      "argv": ["db", "system", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state", "availability-domain",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state", "availability_domain",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "autonomous_database_list",
+      "path": "/db/autonomous-database/list",
+      "method": "post",
+      "summary": "List Autonomous Databases",
+      "description": "Runs `oci db autonomous-database list`. Requires compartment_id.",
+      "argv": ["db", "autonomous-database", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "mysql_db_system_list",
+      "path": "/mysql/db-system/list",
+      "method": "post",
+      "summary": "List MySQL HeatWave DB systems",
+      "description": "Runs `oci mysql db-system list`. Requires compartment_id.",
+      "argv": ["mysql", "db-system", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "nosql_table_list",
+      "path": "/nosql/table/list",
+      "method": "post",
+      "summary": "List NoSQL tables",
+      "description": "Runs `oci nosql table list`. Requires compartment_id.",
+      "argv": ["nosql", "table", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "load_balancer_list",
+      "path": "/lb/load-balancer/list",
+      "method": "post",
+      "summary": "List load balancers",
+      "description": "Runs `oci lb load-balancer list`. Requires compartment_id.",
+      "argv": ["lb", "load-balancer", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "network_load_balancer_list",
+      "path": "/nlb/network-load-balancer/list",
+      "method": "post",
+      "summary": "List network load balancers",
+      "description": "Runs `oci nlb network-load-balancer list`. Requires compartment_id.",
+      "argv": ["nlb", "network-load-balancer", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "display-name", "lifecycle-state",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "display_name", "lifecycle_state",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "ns_get",
+      "path": "/os/ns/get",
+      "method": "post",
+      "summary": "Get Object Storage namespace",
+      "description": "Runs `oci os ns get` for the tenancy namespace name.",
+      "argv": ["os", "ns", "get"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": ["profile", "region", "auth", "query"],
+      "include_body_params": ["profile", "region", "query"]
+    },
+    {
+      "id": "bucket_list",
+      "path": "/os/bucket/list",
+      "method": "post",
+      "summary": "List Object Storage buckets",
+      "description": "Runs `oci os bucket list`. Requires compartment_id and usually namespace_name (from ns_get).",
+      "argv": ["os", "bucket", "list"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": [
+        "compartment-id", "namespace-name", "name",
+        "all", "limit", "page", "profile", "region", "auth", "query"
+      ],
+      "include_body_params": [
+        "compartment_id", "namespace_name", "name",
+        "all", "limit", "page", "profile", "region", "query"
+      ]
+    },
+    {
+      "id": "search",
+      "path": "/search",
+      "method": "post",
+      "summary": "Free-text resource search",
+      "description": "Runs `oci search resource free-text-search --text …`. Finds resources by name/keyword across the tenancy (any type).",
+      "argv": ["search", "resource", "free-text-search"],
+      "fixed_flags": { "output": "json" },
+      "include_flags": ["profile", "region", "auth", "query"],
+      "include_body_params": ["text", "matching_context_type", "profile", "region", "query"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "OCI CLI version",
+      "argv": ["--version"],
+      "requires_working_directory": false
+    }
+  ]
+}

@@ -1,0 +1,59 @@
+{
+  "command": "/home/chatgpt/.local/bin/agy",
+  "title": "Agy CLI",
+  "version": "1.0",
+  "parse_help": false,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory (subprocess cwd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "print", "prompt", "model", "sandbox", "dangerously-skip-permissions", "print-timeout"
+  ],
+  "overrides": {
+    "model": {
+      "description": "Model for the session"
+    },
+    "sandbox": {
+      "type": "boolean",
+      "description": "Run in sandbox with terminal restrictions"
+    },
+    "dangerously-skip-permissions": {
+      "type": "boolean",
+      "description": "Auto-approve tool permissions for non-interactive runs"
+    },
+    "print-timeout": {
+      "description": "Timeout for print mode (e.g. 5m)"
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn prompt (passed as agy --print / -p non-interactive mode)",
+      "required": true,
+      "maps_to_flag": "print"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run a single-turn Agy prompt",
+      "description": "Mandatory --print (-p) runs a single prompt non-interactively and prints the response.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["model", "sandbox", "dangerously-skip-permissions", "print-timeout"]
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Agy CLI version",
+      "argv": ["--version"]
+    }
+  ]
+}

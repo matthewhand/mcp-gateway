@@ -1,0 +1,7 @@
+[Unit]
+Description=mcp-gateway watchdog (health check + self-heal)
+After=network-online.target
+[Service]
+Type=oneshot
+User=chatgpt
+ExecStart=/home/chatgpt/mcp-gateway/bin/watchdog.sh

@@ -1,0 +1,8 @@
+wordpress-dev MCP -> Awardspace live site
+https://blog.example.com/wp-json
+Unit: mcp-server@wordpress-dev  remote: /oauth/ex/wordpress-dev/mcp
+Secrets/comments: secrets/wordpress-dev.env
+
+Honesty (2026-08-27): this is NOT a local WordPress. DEV WordPress containers are GONE.
+Do not compose-up local WP. The leftover nginx vhost wordpress.example.com
+proxies to 127.0.0.1:8088 which is not listening.

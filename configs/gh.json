@@ -1,0 +1,153 @@
+{
+  "command": "/usr/bin/gh",
+  "title": "GitHub CLI",
+  "version": "2.4.0",
+  "parse_help": false,
+  "timeout_sec": 120,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Repo checkout directory (gh resolves owner/repo from git remotes). Pass when using -R/--repo is optional."
+  },
+  "reject_unknown_params": true,
+  "whitelist": ["repo", "limit", "state", "json", "assignee", "author", "label", "search"],
+  "overrides": {
+    "repo": {
+      "description": "Select repository as OWNER/REPO (gh --repo / -R)"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Max items to fetch (default CLI 30)"
+    },
+    "state": {
+      "enum": ["open", "closed", "merged", "all"],
+      "description": "Filter by state (issue list: open|closed|all; pr list: open|closed|merged|all)"
+    },
+    "json": {
+      "description": "Comma-separated JSON fields for --json output"
+    },
+    "assignee": {
+      "description": "Filter by assignee (use @me for yourself)"
+    },
+    "author": {
+      "description": "Filter by author"
+    },
+    "label": {
+      "description": "Filter by label (repeatable via comma-separated in bridge as single string)"
+    },
+    "search": {
+      "description": "Search query (-S/--search)"
+    }
+  },
+  "body_params": {
+    "repo": {
+      "description": "Optional OWNER/REPO override (maps to --repo)",
+      "maps_to_flag": "repo"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "Max items",
+      "maps_to_flag": "limit"
+    },
+    "state": {
+      "description": "State filter",
+      "maps_to_flag": "state"
+    },
+    "json": {
+      "description": "JSON fields for machine-readable output",
+      "maps_to_flag": "json"
+    },
+    "assignee": {
+      "description": "Filter by assignee",
+      "maps_to_flag": "assignee"
+    },
+    "author": {
+      "description": "Filter by author",
+      "maps_to_flag": "author"
+    },
+    "label": {
+      "description": "Filter by label",
+      "maps_to_flag": "label"
+    },
+    "search": {
+      "description": "Search query",
+      "maps_to_flag": "search"
+    },
+    "repository": {
+      "description": "Optional OWNER/REPO for repo view (positional after `gh repo view`)",
+      "positional": "arg"
+    },
+    "endpoint": {
+      "description": "GitHub API path (e.g. user, repos/{owner}/{repo}) for `gh api`",
+      "required": true,
+      "positional": "arg"
+    },
+    "method": {
+      "description": "HTTP method for gh api (GET, POST, …)",
+      "cli_flag": "method"
+    }
+  },
+  "operations": [
+    {
+      "id": "issue_list",
+      "path": "/issue/list",
+      "method": "post",
+      "summary": "List GitHub issues",
+      "description": "Runs `gh issue list` in the given working_directory (or --repo). Use json for structured fields.",
+      "argv": ["issue", "list"],
+      "requires_working_directory": true,
+      "include_flags": ["repo", "limit", "state", "json", "assignee", "author", "label", "search"],
+      "include_body_params": ["repo", "limit", "state", "json", "assignee", "author", "label", "search"]
+    },
+    {
+      "id": "pr_list",
+      "path": "/pr/list",
+      "method": "post",
+      "summary": "List GitHub pull requests",
+      "description": "Runs `gh pr list` in the given working_directory (or --repo).",
+      "argv": ["pr", "list"],
+      "requires_working_directory": true,
+      "include_flags": ["repo", "limit", "state", "json", "assignee", "author", "label", "search"],
+      "include_body_params": ["repo", "limit", "state", "json", "assignee", "author", "label", "search"]
+    },
+    {
+      "id": "repo_view",
+      "path": "/repo/view",
+      "method": "post",
+      "summary": "View repository description / README",
+      "description": "Runs `gh repo view` for the cwd remote, optional repository body, or --repo.",
+      "argv": ["repo", "view"],
+      "requires_working_directory": true,
+      "include_flags": ["repo", "json"],
+      "include_body_params": ["repo", "json", "repository"]
+    },
+    {
+      "id": "api",
+      "path": "/api",
+      "method": "post",
+      "summary": "Authenticated GitHub API request",
+      "description": "Runs `gh api <endpoint>`. Endpoint may use {owner}/{repo} placeholders resolved from cwd.",
+      "argv": ["api"],
+      "requires_working_directory": true,
+      "include_body_params": ["endpoint", "method"]
+    },
+    {
+      "id": "auth_status",
+      "path": "/auth/status",
+      "method": "get",
+      "summary": "Show gh auth status",
+      "argv": ["auth", "status"],
+      "requires_working_directory": false
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "gh version",
+      "argv": ["--version"],
+      "requires_working_directory": false
+    }
+  ]
+}

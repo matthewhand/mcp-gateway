@@ -1,0 +1,13 @@
+[Unit]
+# Tick the autoscaler periodically (it self-throttles via backoff/guards).
+Description=mcp-gateway replica autoscaler timer
+
+[Timer]
+OnBootSec=90s
+OnUnitActiveSec=120s
+AccuracySec=10s
+Persistent=false
+Unit=mcp-replica-scale.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,71 @@
+{
+  "command": "/home/chatgpt/.local/bin/grok",
+  "title": "Grok CLI",
+  "version": "0.2.87",
+  "parse_help": true,
+  "timeout_sec": 600,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "maps_to_flag": "cwd",
+    "required": true,
+    "allowed_roots": ["/home/chatgpt"],
+    "description": "Required per call: project directory chosen by the MCP client (passed as --cwd)"
+  },
+  "reject_unknown_params": true,
+  "whitelist": [
+    "model", "effort", "max-turns", "output-format", "disable-web-search",
+    "tools", "check", "json-schema", "no-alt-screen"
+  ],
+  "overrides": {
+    "model": {
+      "description": "Model ID (grok -m)"
+    },
+    "effort": {
+      "enum": ["low", "medium", "high", "xhigh", "max"]
+    },
+    "max-turns": {
+      "type": "integer",
+      "description": "Maximum agent turns"
+    },
+    "output-format": {
+      "enum": ["plain", "json", "streaming-json"],
+      "description": "Headless output format"
+    },
+    "disable-web-search": {
+      "type": "boolean"
+    },
+    "check": {
+      "type": "boolean",
+      "description": "Append self-verification loop"
+    }
+  },
+  "body_params": {
+    "prompt": {
+      "description": "Single-turn prompt (always passed as grok -p / --single)",
+      "required": true,
+      "maps_to_flag": "single"
+    }
+  },
+  "operations": [
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Run a single-turn Grok prompt",
+      "description": "Mandatory --single (-p) is driven by the prompt body field. Headless flags are applied by default.",
+      "include_body_params": ["prompt"],
+      "include_flags": ["model", "effort", "max-turns", "output-format", "disable-web-search", "check"],
+      "fixed_flags": {
+        "no-alt-screen": true
+      }
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "Get Grok CLI version",
+      "argv": ["--version"]
+    }
+  ]
+}

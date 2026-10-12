@@ -1,0 +1,37 @@
+# secrets — never commit
+servers.json
+secrets/
+*.bak
+*.bak-*
+.env
+.env.*
+*.key
+*.age
+*.pem
+
+# local nginx (has bearer + grok secrets)
+nginx/mcp.conf
+README.local.md
+status.html
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.Python
+.venv/
+venv/
+
+# local/generated artifacts (not source)
+artifacts/
+*.pyc
+specs/netbox-openapi.yaml
+
+# local virtualenvs and worktrees (never source)
+venvs/
+.worktrees/
+
+# transient host state
+.local-*
+oauth-clients*.json
+.env.local

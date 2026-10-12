@@ -1,0 +1,504 @@
+{
+  "command": [
+    "/home/chatgpt/mcp-gateway/bin/acpx-wrap.sh",
+    "--approve-all",
+    "--format",
+    "quiet",
+    "--non-interactive-permissions",
+    "deny",
+    "--timeout",
+    "600"
+  ],
+  "title": "acpx (ACP headless client)",
+  "version": "0.12.0",
+  "parse_help": false,
+  "timeout_sec": 660,
+  "working_directory": {
+    "mode": "request",
+    "param": "working_directory",
+    "required": true,
+    "allowed_roots": [
+      "/home/chatgpt"
+    ],
+    "description": "Project directory for ACP session scope (acpx uses process cwd; git-root walk for resume). Required on every call."
+  },
+  "reject_unknown_params": true,
+  "sandbox_outputs": false,
+  "whitelist": [
+    "allowed-tools",
+    "append-system-prompt",
+    "file",
+    "format",
+    "json-strict",
+    "limit",
+    "local",
+    "max-turns",
+    "model",
+    "name",
+    "no-terminal",
+    "no-wait",
+    "session",
+    "suppress-reads",
+    "system-prompt",
+    "timeout",
+    "ttl",
+    "verbose"
+  ],
+  "overrides": {
+    "session": {
+      "description": "Named acpx session within the cwd (-s / --session)"
+    },
+    "name": {
+      "description": "Session name for sessions new/ensure/close/show/history"
+    },
+    "file": {
+      "description": "Read prompt text from file path (-f / --file; use - for stdin)"
+    },
+    "no-wait": {
+      "type": "boolean",
+      "description": "Enqueue prompt and return immediately if session is busy"
+    },
+    "local": {
+      "type": "boolean",
+      "description": "List local acpx session records (sessions list --local)"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "History entry limit (sessions history --limit)"
+    },
+    "model": {
+      "description": "Agent model id (--model)"
+    },
+    "timeout": {
+      "type": "integer",
+      "description": "Agent response timeout seconds (global; already defaulted in command)"
+    },
+    "format": {
+      "enum": [
+        "text",
+        "json",
+        "quiet"
+      ],
+      "description": "Output format (bridge defaults to quiet)"
+    },
+    "ttl": {
+      "type": "integer",
+      "description": "Queue owner idle TTL seconds"
+    },
+    "max-turns": {
+      "type": "integer",
+      "description": "Maximum session turns"
+    },
+    "allowed-tools": {
+      "description": "Comma-separated tool whitelist (\"\" for none)"
+    },
+    "system-prompt": {
+      "description": "Replace agent system prompt (mainly Claude ACP)"
+    },
+    "append-system-prompt": {
+      "description": "Append to agent system prompt (mainly Claude ACP)"
+    },
+    "verbose": {
+      "type": "boolean",
+      "description": "Verbose ACP/debug logs on stderr"
+    },
+    "suppress-reads": {
+      "type": "boolean",
+      "description": "Suppress raw read-file contents in output"
+    },
+    "json-strict": {
+      "type": "boolean",
+      "description": "Strict JSON mode (pair with format=json)"
+    },
+    "no-terminal": {
+      "type": "boolean",
+      "description": "Do not advertise ACP terminal capability"
+    }
+  },
+  "body_params": {
+    "session": {
+      "description": "Named session (-s) for parallel workstreams in the same cwd",
+      "maps_to_flag": "session"
+    },
+    "name": {
+      "description": "Session name for sessions subcommands (--name or close/show target)",
+      "maps_to_flag": "name"
+    },
+    "file": {
+      "description": "Prompt file path (-f)",
+      "maps_to_flag": "file"
+    },
+    "no_wait": {
+      "type": "boolean",
+      "description": "Fire-and-forget queue submit",
+      "maps_to_flag": "no-wait"
+    },
+    "local": {
+      "type": "boolean",
+      "description": "Use local session records for list",
+      "maps_to_flag": "local"
+    },
+    "limit": {
+      "type": "integer",
+      "description": "History limit",
+      "maps_to_flag": "limit"
+    },
+    "model": {
+      "description": "Model id",
+      "maps_to_flag": "model"
+    },
+    "session_name": {
+      "description": "Positional session name for close/show/history (e.g. backend)",
+      "positional": "arg"
+    },
+    "prompt": {
+      "description": "Prompt text for the coding agent (must be last positional)",
+      "required": true,
+      "positional": "arg"
+    }
+  },
+  "operations": [
+    {
+      "id": "exec",
+      "path": "/exec",
+      "method": "post",
+      "summary": "One-shot coding (default: OpenCode ACP via LiteLLM code pool)",
+      "description": "Default coding tool. Runs `acpx --model litellm/code opencode exec <prompt>`. Other agents: exec_grok (subscription), exec_qwen, exec_gemini, exec_kilocode, exec_codex. Requires working_directory.",
+      "argv": [
+        "--model",
+        "litellm/code",
+        "opencode",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "exec_grok",
+      "path": "/exec/grok",
+      "method": "post",
+      "summary": "One-shot Grok (subscription override)",
+      "description": "Override default coding agent. Runs `acpx grok-build exec <prompt>` on Grok subscription (not LiteLLM). Requires working_directory.",
+      "argv": [
+        "grok-build",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "exec_qwen",
+      "path": "/exec/qwen",
+      "method": "post",
+      "summary": "One-shot Qwen ACP (LiteLLM env)",
+      "description": "Runs `acpx qwen exec <prompt>` with LiteLLM Fly env. Agent advertises models (e.g. coder-model, delegation(openai)). Requires working_directory.",
+      "argv": [
+        "qwen",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "exec_opencode",
+      "path": "/exec/opencode",
+      "method": "post",
+      "summary": "One-shot OpenCode ACP (LiteLLM pool code)",
+      "description": "Runs `acpx --model litellm/code opencode exec <prompt>`. LiteLLM Fly. Requires working_directory.",
+      "argv": [
+        "--model",
+        "litellm/code",
+        "opencode",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "exec_gemini",
+      "path": "/exec/gemini",
+      "method": "post",
+      "summary": "One-shot Gemini ACP (LiteLLM Fly env; default model)",
+      "description": "Runs `acpx gemini exec <prompt>` with LiteLLM Fly env (GOOGLE_GEMINI_BASE_URL). Do not force --model code: ACP only advertises Google model ids; omit model to use agent default against Fly. Requires working_directory.",
+      "argv": [
+        "gemini",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "exec_kilocode",
+      "path": "/exec/kilocode",
+      "method": "post",
+      "summary": "One-shot Kilo Code ACP (LiteLLM pool code)",
+      "description": "Runs `acpx --model litellm/code kilocode exec <prompt>`. LiteLLM Fly. Requires working_directory.",
+      "argv": [
+        "--model",
+        "litellm/code",
+        "kilocode",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "exec_codex",
+      "path": "/exec/codex",
+      "method": "post",
+      "summary": "One-shot Codex ACP (LiteLLM pool code)",
+      "description": "Runs `acpx --model code codex exec <prompt>` via isolated CODEX_HOME\u2192LiteLLM. Requires working_directory.",
+      "argv": [
+        "--model",
+        "code",
+        "codex",
+        "exec"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "file"
+      ],
+      "include_flags": [
+        "file",
+        "max-turns",
+        "timeout"
+      ]
+    },
+    {
+      "id": "prompt",
+      "path": "/prompt",
+      "method": "post",
+      "summary": "Persistent-session prompt (grok-build)",
+      "description": "Runs `acpx grok-build [ -s name ] <prompt>`. Requires an existing session for the cwd (use sessions_ensure first). Queue-aware multi-turn.",
+      "argv": [
+        "grok-build"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "prompt",
+        "session",
+        "file",
+        "no_wait"
+      ],
+      "include_flags": [
+        "session",
+        "file",
+        "no-wait",
+        "model"
+      ]
+    },
+    {
+      "id": "sessions_ensure",
+      "path": "/sessions/ensure",
+      "method": "post",
+      "summary": "Get-or-create session (grok-build)",
+      "description": "Runs `acpx grok-build sessions ensure [--name \u2026]`. Idempotent bootstrap before /prompt.",
+      "argv": [
+        "grok-build",
+        "sessions",
+        "ensure"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "name"
+      ],
+      "include_flags": [
+        "name"
+      ]
+    },
+    {
+      "id": "sessions_new",
+      "path": "/sessions/new",
+      "method": "post",
+      "summary": "Create fresh session (grok-build)",
+      "description": "Runs `acpx grok-build sessions new [--name \u2026]`. Soft-closes the previous open session in scope.",
+      "argv": [
+        "grok-build",
+        "sessions",
+        "new"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "name"
+      ],
+      "include_flags": [
+        "name"
+      ]
+    },
+    {
+      "id": "sessions_list",
+      "path": "/sessions/list",
+      "method": "post",
+      "summary": "List sessions (local records by default)",
+      "description": "Runs `acpx grok-build sessions list --local` (fixed). Use /run for agent-side list without --local.",
+      "argv": [
+        "grok-build",
+        "sessions",
+        "list",
+        "--local"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [],
+      "include_flags": []
+    },
+    {
+      "id": "sessions_show",
+      "path": "/sessions/show",
+      "method": "post",
+      "summary": "Show session metadata",
+      "description": "Runs `acpx grok-build sessions show [name]`.",
+      "argv": [
+        "grok-build",
+        "sessions",
+        "show"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "session_name"
+      ]
+    },
+    {
+      "id": "sessions_history",
+      "path": "/sessions/history",
+      "method": "post",
+      "summary": "Show session turn history previews",
+      "description": "Runs `acpx grok-build sessions history [name] [--limit N]`.",
+      "argv": [
+        "grok-build",
+        "sessions",
+        "history"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "session_name",
+        "limit"
+      ],
+      "include_flags": [
+        "limit"
+      ]
+    },
+    {
+      "id": "sessions_close",
+      "path": "/sessions/close",
+      "method": "post",
+      "summary": "Soft-close session",
+      "description": "Runs `acpx grok-build sessions close [name]`.",
+      "argv": [
+        "grok-build",
+        "sessions",
+        "close"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "session_name"
+      ]
+    },
+    {
+      "id": "status",
+      "path": "/status",
+      "method": "post",
+      "summary": "Local queue-owner / session process status",
+      "description": "Runs `acpx grok-build status [-s name]`.",
+      "argv": [
+        "grok-build",
+        "status"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "session"
+      ],
+      "include_flags": [
+        "session"
+      ]
+    },
+    {
+      "id": "cancel",
+      "path": "/cancel",
+      "method": "post",
+      "summary": "Cooperative cancel of in-flight prompt",
+      "description": "Runs `acpx grok-build cancel [-s name]`.",
+      "argv": [
+        "grok-build",
+        "cancel"
+      ],
+      "requires_working_directory": true,
+      "include_body_params": [
+        "session"
+      ],
+      "include_flags": [
+        "session"
+      ]
+    },
+    {
+      "id": "config_show",
+      "path": "/config/show",
+      "method": "get",
+      "summary": "Show resolved acpx config",
+      "description": "Runs `acpx config show` (global + project merge).",
+      "argv": [
+        "config",
+        "show"
+      ],
+      "requires_working_directory": false
+    },
+    {
+      "id": "version",
+      "path": "/version",
+      "method": "get",
+      "summary": "acpx version",
+      "argv": [
+        "--version"
+      ],
+      "requires_working_directory": false
+    }
+  ]
+}

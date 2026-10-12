@@ -1,0 +1,12 @@
+# DISCONTINUED 2026-08-31 on this host — not in live nginx. Kept for re-enable.
+# Add this block inside the server{} in nginx/mcp.conf (alongside the other
+# /oauth/ex/<name>/mcp blocks), then: sudo nginx -t && sudo systemctl reload nginx
+# Exposes the open-swarm-oracle MCP tool-server (supergateway on :8814) to OAuth clients (Grok).
+location /oauth/ex/open-swarm-oracle/mcp {
+    auth_request /oauth-validate;
+    error_page 401 = @mcp_oauth_401;
+    rewrite ^/oauth/ex/open-swarm-oracle/mcp(/.*)?$ /mcp break;
+    proxy_pass http://127.0.0.1:8814;
+    proxy_http_version 1.1;
+    proxy_set_header Connection "";
+}

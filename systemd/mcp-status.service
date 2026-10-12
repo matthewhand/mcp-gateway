@@ -1,0 +1,20 @@
+[Unit]
+Description=mcp-gateway status webui (localhost :8781)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=chatgpt
+Group=chatgpt
+Environment=MCP_STATUS_HOST=127.0.0.1
+Environment=MCP_STATUS_PORT=8781
+ExecStart=/usr/bin/python3 /home/chatgpt/mcp-gateway/bin/status_web.py
+Restart=always
+RestartSec=3
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=mcp-status
+
+[Install]
+WantedBy=multi-user.target

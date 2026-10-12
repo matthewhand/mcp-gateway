@@ -1,0 +1,3194 @@
+openapi: 3.0.3
+info:
+  title: NetBox REST API
+  version: 4.2.8-Docker-3.2.0 (4.2)
+  license:
+    name: Apache v2 License
+servers:
+- url: ''
+  description: NetBox
+paths:
+  /api/dcim/devices/:
+    get:
+      operationId: dcim_devices_list
+      summary: Get a list of device objects.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: airflow
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: asset_tag__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: cluster_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: cluster_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: cluster_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: cluster_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: cluster_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: cluster_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: config_template_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: config_template_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_port_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_ports
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_port_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: console_server_ports
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_role
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_role__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bay_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_bays
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_type
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_type__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_type_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_type_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: face
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: front_port_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: has_oob_ip
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: has_primary_ip
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: has_virtual_device_context
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interfaces
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: inventory_item_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: is_full_depth
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: latitude__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: local_context_data
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: longitude__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mac_address__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: manufacturer
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: manufacturer__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: manufacturer_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: manufacturer_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: model
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: model__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: modified_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bay_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: module_bays
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: name__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: oob_ip_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: oob_ip_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ordering
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: parent_bay_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: parent_bay_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: parent_device_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: parent_device_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: pass_through_ports
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: platform
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: platform__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: platform_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: platform_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: position__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlet_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_outlets
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_port_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: power_ports
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: primary_ip4_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: primary_ip4_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: primary_ip6_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: primary_ip6_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rack_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rack_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: rear_port_count__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: serial__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tag__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: updated_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_position__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vc_priority__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: virtual_chassis_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: virtual_chassis_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: virtual_chassis_member
+        in: query
+        required: false
+        schema:
+          type: string
+    post:
+      operationId: dcim_devices_create
+      summary: Post a list of device objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    put:
+      operationId: dcim_devices_bulk_update
+      summary: Put a list of device objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    patch:
+      operationId: dcim_devices_bulk_partial_update
+      summary: Patch a list of device objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    delete:
+      operationId: dcim_devices_bulk_destroy
+      summary: Delete a list of device objects.
+      responses:
+        '200':
+          description: OK
+  /api/dcim/devices/{id}/:
+    get:
+      operationId: dcim_devices_retrieve
+      summary: Get a device object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: dcim_devices_update
+      summary: Put a device object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    patch:
+      operationId: dcim_devices_partial_update
+      summary: Patch a device object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    delete:
+      operationId: dcim_devices_destroy
+      summary: Delete a device object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /api/dcim/devices/{id}/render-config/:
+    post:
+      operationId: dcim_devices_render_config_create
+      summary: Resolve and render the preferred ConfigTemplate for this Device.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: format
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+  /api/ipam/ip-addresses/:
+    get:
+      operationId: ipam_ip_addresses_list
+      summary: Get a list of IP address objects.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: address
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_type
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_object_type__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: assigned_to_interface
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_role
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_role__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: device_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: dns_name__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: family
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: fhrpgroup_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: fhrpgroup_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: interface_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mask_length
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mask_length__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mask_length__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: modified_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: nat_inside_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: nat_inside_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ordering
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: parent
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: present_in_vrf
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: present_in_vrf_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: service_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: service_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tag__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: updated_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: virtual_machine
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: virtual_machine_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vminterface
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vminterface__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vminterface_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vminterface_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+    post:
+      operationId: ipam_ip_addresses_create
+      summary: Post a list of IP address objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    put:
+      operationId: ipam_ip_addresses_bulk_update
+      summary: Put a list of IP address objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    patch:
+      operationId: ipam_ip_addresses_bulk_partial_update
+      summary: Patch a list of IP address objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    delete:
+      operationId: ipam_ip_addresses_bulk_destroy
+      summary: Delete a list of IP address objects.
+      responses:
+        '200':
+          description: OK
+  /api/ipam/ip-addresses/{id}/:
+    get:
+      operationId: ipam_ip_addresses_retrieve
+      summary: Get a IP address object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: ipam_ip_addresses_update
+      summary: Put a IP address object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    patch:
+      operationId: ipam_ip_addresses_partial_update
+      summary: Patch a IP address object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    delete:
+      operationId: ipam_ip_addresses_destroy
+      summary: Delete a IP address object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /api/ipam/prefixes/:
+    get:
+      operationId: ipam_prefixes_list
+      summary: Get a list of prefix objects.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: children
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: children__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: children__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: children__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: children__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: children__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: children__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_role
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contact_role__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: contains
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: created_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: depth__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: description__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: family
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: is_pool
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: last_updated__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: limit
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: location_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mark_utilized
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mask_length
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mask_length__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: mask_length__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: modified_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: offset
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: ordering
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: prefix
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: present_in_vrf
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: present_in_vrf_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: q
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: region_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: role_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_type
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: scope_type__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: site_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__ic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__ie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__iew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__isw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nic
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nie
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__niew
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: status__nisw
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tag
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tag__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: tenant_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: updated_by_request
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_group
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_group__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_group_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_group_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid__empty
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid__gt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid__gte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid__lt
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid__lte
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vlan_vid__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf_id
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: vrf_id__n
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: within
+        in: query
+        required: false
+        schema:
+          type: string
+      - name: within_include
+        in: query
+        required: false
+        schema:
+          type: string
+    post:
+      operationId: ipam_prefixes_create
+      summary: Post a list of prefix objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    put:
+      operationId: ipam_prefixes_bulk_update
+      summary: Put a list of prefix objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    patch:
+      operationId: ipam_prefixes_bulk_partial_update
+      summary: Patch a list of prefix objects.
+      responses:
+        '200':
+          description: OK
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    delete:
+      operationId: ipam_prefixes_bulk_destroy
+      summary: Delete a list of prefix objects.
+      responses:
+        '200':
+          description: OK
+  /api/ipam/prefixes/{id}/:
+    get:
+      operationId: ipam_prefixes_retrieve
+      summary: Get a prefix object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    put:
+      operationId: ipam_prefixes_update
+      summary: Put a prefix object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    patch:
+      operationId: ipam_prefixes_partial_update
+      summary: Patch a prefix object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+    delete:
+      operationId: ipam_prefixes_destroy
+      summary: Delete a prefix object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+  /api/ipam/prefixes/{id}/available-ips/:
+    get:
+      operationId: ipam_prefixes_available_ips_list
+      summary: Get a IP address object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: ipam_prefixes_available_ips_create
+      summary: Post a IP address object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+  /api/ipam/prefixes/{id}/available-prefixes/:
+    get:
+      operationId: ipam_prefixes_available_prefixes_list
+      summary: Get a prefix object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+    post:
+      operationId: ipam_prefixes_available_prefixes_create
+      summary: Post a prefix object.
+      responses:
+        '200':
+          description: OK
+      parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
